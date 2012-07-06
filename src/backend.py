@@ -95,7 +95,7 @@ class DynamicBackend:
                     self.handle_nameservers(qname)
                 else:
                     self.handle_subdomains(qname)
-            elif qtype == 'SOA':
+            elif qtype == 'SOA' and qname.endswith(self.domain):
                 self.handle_soa(qname)
             else:
                 self.handle_unknown(qtype, qname)
@@ -146,7 +146,7 @@ class DynamicBackend:
 
     def handle_unknown(self, qtype, qname):
         write('LOG', 'Unknown type: %s, domain: %s' % (qtype, qname))
-        write('FAIL')
+        write('END')
 
 
 if __name__ == '__main__':
