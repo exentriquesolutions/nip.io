@@ -85,7 +85,7 @@ class DynamicBackend:
                 write('FAIL')
                 continue
 
-            qname = cmd[1]
+            qname = cmd[1].lower()
             qtype = cmd[3]
 
             if (qtype == 'A' or qtype == 'ANY') and qname.endswith(self.domain):
