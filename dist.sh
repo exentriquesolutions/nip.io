@@ -1,6 +1,12 @@
 #!/bin/bash
 
-me=$(readlink -f $0)
+
+abspath=$(which abspath)
+if [ "$abspath" = "" ]; then
+    abspath="readlink -f"
+fi
+
+me=$($abspath $0)
 parent=$(dirname $me)
 distname=$(basename $parent)
 

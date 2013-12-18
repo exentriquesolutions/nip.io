@@ -8,7 +8,8 @@ import ConfigParser
 DEBUG=0
 
 def log(msg):
-    sys.stderr.write('backend: %s\n' % msg)
+    sys.stderr.write('backend (%s): %s\n' % (os.getpid(), msg))
+
 
 def write(*l):
     args=len(l)
@@ -23,6 +24,7 @@ def write(*l):
     if DEBUG: log('writenewline')
     sys.stdout.write('\n')
     sys.stdout.flush()
+
 
 def get_next():
     if DEBUG: log('reading now')
