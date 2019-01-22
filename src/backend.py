@@ -1,35 +1,41 @@
 #!/usr/bin/python
 
-import sys
-import re
-import os
 import ConfigParser
+import os
+import re
+import sys
 
-DEBUG=0
+DEBUG = 0
+
 
 def log(msg):
     sys.stderr.write('backend (%s): %s\n' % (os.getpid(), msg))
 
 
 def write(*l):
-    args=len(l)
+    args = len(l)
     c = 0
     for a in l:
         c += 1
-        if DEBUG: log('writing: %s' % a)
+        if DEBUG:
+            log('writing: %s' % a)
         sys.stdout.write(a)
         if c < args:
-            if DEBUG: log('writetab')
+            if DEBUG:
+                log('writetab')
             sys.stdout.write('\t')
-    if DEBUG: log('writenewline')
+    if DEBUG:
+        log('writenewline')
     sys.stdout.write('\n')
     sys.stdout.flush()
 
 
 def get_next():
-    if DEBUG: log('reading now')
+    if DEBUG:
+        log('reading now')
     l = sys.stdin.readline()
-    if DEBUG: log('read line: %s' % l)
+    if DEBUG:
+        log('read line: %s' % l)
     return l.strip().split('\t')
 
 
@@ -47,18 +53,18 @@ class DynamicBackend:
         if not os.path.exists(fname):
             log('%s does not exist' % fname)
             sys.exit(1)
-    
+
         fp = open(fname)
         config = ConfigParser.ConfigParser()
         config.readfp(fp)
         fp.close()
 
         self.id = config.get('soa', 'id')
-        self.soa = '%s %s %s' % (config.get('soa', 'ns'), config.get('soa','hostmaster'), self.id)
+        self.soa = '%s %s %s' % (config.get('soa', 'ns'), config.get('soa', 'hostmaster'), self.id)
         self.domain = config.get('main', 'domain')
         self.ip_address = config.get('main', 'ipaddress')
         self.ttl = config.get('main', 'ttl')
-    
+
         for entry in config.items('nameservers'):
             self.name_servers[entry[0]] = entry[1]
 
@@ -80,7 +86,8 @@ class DynamicBackend:
 
         while True:
             cmd = get_next()
-            if DEBUG: log(cmd)
+            if DEBUG:
+                log(cmd)
 
             if len(cmd) < 6:
                 log('did not understand: %s' % cmd)
@@ -108,24 +115,28 @@ class DynamicBackend:
         write('END')
 
     def handle_subdomains(self, qname):
-        subdomain = qname[0:qname.find(self.domain)-1]
+        subdomain = qname[0:qname.find(self.domain) - 1]
 
         subparts = subdomain.split('.')
         if len(subparts) < 4:
-            if DEBUG: log('subparts less than 4')
+            if DEBUG:
+                log('subparts less than 4')
             self.handle_self(qname)
             return
 
         ipaddress = subparts[-4:]
-        if DEBUG: log('ip: %s' % ipaddress)
+        if DEBUG:
+            log('ip: %s' % ipaddress)
         for part in ipaddress:
             if re.match('^\d{1,3}$', part) is None:
-                if DEBUG: log('%s is not a number' % part)
+                if DEBUG:
+                    log('%s is not a number' % part)
                 self.handle_self(qname)
                 return
             parti = int(part)
             if parti < 0 or parti > 255:
-                if DEBUG: log('%d is too big/small' % parti)
+                if DEBUG:
+                    log('%d is too big/small' % parti)
                 self.handle_self(qname)
                 return
 
@@ -152,8 +163,6 @@ class DynamicBackend:
 
 
 if __name__ == '__main__':
-
     backend = DynamicBackend()
     backend.configure()
     backend.run()
-
