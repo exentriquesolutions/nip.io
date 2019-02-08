@@ -1,8 +1,11 @@
 *.ipr
 *.iml
 *.iws
-.idea
 .DS_Store
 build
 nip.io.egg-info
 dist
+
+.idea/*.xml
+.idea/inspectionProfiles
+
