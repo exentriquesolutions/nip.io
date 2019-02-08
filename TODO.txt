@@ -1,5 +1,0 @@
-Docker
-Github
-CI
-PIP
-_write is overly complex??!!?
