@@ -141,7 +141,7 @@ class DynamicBackend:
     def handle_subdomains(self, qname):
         subdomain = qname[0:qname.find(self.domain) - 1]
 
-        subparts = subdomain.split('.')
+        subparts = self._split_subdomain(subdomain)
         if len(subparts) < 4:
             if _is_debug():
                 _log('subparts less than 4')
@@ -157,10 +157,10 @@ class DynamicBackend:
                     _log('%s is not a number' % part)
                 self.handle_self(qname)
                 return
-            parti = int(part)
-            if parti < 0 or parti > 255:
+            part_int = int(part)
+            if part_int < 0 or part_int > 255:
                 if _is_debug():
-                    _log('%d is too big/small' % parti)
+                    _log('%d is too big/small' % part_int)
                 self.handle_self(qname)
                 return
 
@@ -196,6 +196,9 @@ class DynamicBackend:
 
     def _get_config_filename(self):
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
+
+    def _split_subdomain(self, subdomain):
+        return re.split("[.-]", subdomain)
 
 
 if __name__ == '__main__':
