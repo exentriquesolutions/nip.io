@@ -2,7 +2,7 @@ FROM alpine:3.7
 
 RUN apk add --no-cache pdns pdns-backend-pipe python2
 
-EXPOSE 53
+EXPOSE 53/tcp 53/udp
 
 COPY nipio/backend.py /usr/local/bin
 RUN chmod +x /usr/local/bin/backend.py
