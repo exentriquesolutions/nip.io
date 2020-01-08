@@ -23,6 +23,10 @@ def _is_debug():
     return False
 
 
+def _get_env_splitted(key, default=None, linesep=' ', pairsep='='):
+    return (line.split(pairsep) for line in os.getenv(key).split(linesep)) if os.getenv(key) else default
+
+
 def _log(msg):
     sys.stderr.write('backend (%s): %s\n' % (os.getpid(), msg))
 
@@ -74,17 +78,19 @@ class DynamicBackend:
             config = ConfigParser.ConfigParser()
             config.readfp(fp)
 
-        self.id = config.get('soa', 'id')
-        self.soa = '%s %s %s' % (config.get('soa', 'ns'), config.get('soa', 'hostmaster'), self.id)
-        self.domain = config.get('main', 'domain')
-        self.ip_address = config.get('main', 'ipaddress')
-        self.ttl = config.get('main', 'ttl')
+        self.id = os.getenv('NIPIO_SOA_ID', config.get('soa', 'id'))
+        self.soa = '%s %s %s' % (
+            os.getenv('NIPIO_SOA_NS', config.get('soa', 'ns')),
+            os.getenv('NIPIO_SOA_HOSTMASTER', config.get('soa', 'hostmaster')),
+            self.id)
+        self.domain = os.getenv('NIPIO_DOMAIN', config.get('main', 'domain'))
+        self.ip_address = os.getenv('NIPIO_NONWILD_DEFAULT_IP', config.get('main', 'ipaddress'))
+        self.ttl = os.getenv('NIPIO_TTL', config.get('main', 'ttl'))
+        self.name_servers = dict(_get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers')))
 
-        for entry in config.items('nameservers'):
-            self.name_servers[entry[0]] = entry[1]
-
-        if config.has_section("blacklist"):
-            for entry in config.items("blacklist"):
+        if 'NIPIO_BLACKLIST' in os.environ or config.has_section("blacklist"):
+            for entry in _get_env_splitted('NIPIO_BLACKLIST',
+                                           config.items("blacklist") if config.has_section("blacklist") else None):
                 self.blacklisted_ips.append(entry[1])
 
         _log('Name servers: %s' % self.name_servers)

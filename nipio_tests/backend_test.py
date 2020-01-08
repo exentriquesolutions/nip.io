@@ -25,6 +25,7 @@ from nipio.backend import DynamicBackend
 
 class DynamicBackendTest(unittest.TestCase):
     def setUp(self):
+        os.environ.clear()
         self.mock_sys_patcher = patch("nipio.backend.sys")
         self.mock_sys = self.mock_sys_patcher.start()
 
@@ -341,6 +342,30 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.name_servers).is_equal_to({"ns1.lcl.io": "127.0.0.41", "ns2.lcl.io" : "127.0.0.42"})
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.100"])
         assert_that(backend.soa).is_equal_to("ns1.lcl.io emailaddress@lcl.io 55")
+
+    def test_configure_with_environment_variables_set(self):
+        os.environ['NIPIO_DOMAIN'] = "example.com"
+        os.environ['NIPIO_TTL'] = "1000"
+        os.environ['NIPIO_NONWILD_DEFAULT_IP'] = "127.0.0.30"
+        os.environ['NIPIO_SOA_ID'] = "99"
+        os.environ['NIPIO_SOA_HOSTMASTER'] = "hostmaster@example.com"
+        os.environ['NIPIO_SOA_NS'] = "ns1.example.com"
+        os.environ['NIPIO_NAMESERVERS'] = "ns1.example.com=127.0.0.31 ns2.example.com=127.0.0.32"
+        os.environ['NIPIO_BLACKLIST'] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
+
+        backend = self._configure_backend()
+        assert_that(backend.id).is_equal_to("99")
+        assert_that(backend.ip_address).is_equal_to("127.0.0.30")
+        assert_that(backend.domain).is_equal_to("example.com")
+        assert_that(backend.ttl).is_equal_to("1000")
+        assert_that(backend.name_servers).is_equal_to({"ns1.example.com": "127.0.0.31", "ns2.example.com": "127.0.0.32"})
+        assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
+        assert_that(backend.soa).is_equal_to("ns1.example.com hostmaster@example.com 99")
+
+    def test_configure_with_env_blacklist_config(self):
+        os.environ['NIPIO_BLACKLIST'] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
+        backend = self._configure_backend(filename="backend_test_no_blacklist.conf")
+        assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
 
     def test_configure_with_config_missing_blacklists(self):
         backend = self._configure_backend(filename="backend_test_no_blacklist.conf")

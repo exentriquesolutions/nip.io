@@ -1,4 +1,3 @@
    - PIP
-   - Docker configuration using environment variables
    - _write is overly complex??!!?
    - Support for IP address in integer format
