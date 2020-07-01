@@ -99,6 +99,50 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
         )
 
+    def test_backend_responds_to_A_request_with_valid_ip_hexstring(self):
+        self._send_commands(["Q", "user-deadbeef.lcl.io", "IN", "A", "1", "127.0.0.1"])
+
+        self._run_backend()
+
+        self._assert_expected_responses(
+            ["DATA", "user-deadbeef.lcl.io", "IN", "A", "200", "22", "222.173.190.239"],
+            ["DATA", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+        )
+
+    def test_backend_responds_to_long_hexstring_with_self(self):
+        self._send_commands(["Q", "deadbeefcafe.lcl.io", "IN", "A", "1", "127.0.0.1"])
+
+        self._run_backend()
+
+        self._assert_expected_responses(
+            ["DATA", "deadbeefcafe.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
+            ["DATA", "deadbeefcafe.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "deadbeefcafe.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+        )
+
+    def test_backend_responds_to_short_hexstring_with_self(self):
+        self._send_commands(["Q", "user-dec0ded.lcl.io", "IN", "A", "1", "127.0.0.1"])
+
+        self._run_backend()
+
+        self._assert_expected_responses(
+            ["DATA", "user-dec0ded.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
+            ["DATA", "user-dec0ded.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "user-dec0ded.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+        )
+
+    def test_backend_responds_to_invalid_hexstring_with_self(self):
+        self._send_commands(["Q", "deadcode.lcl.io", "IN", "A", "1", "127.0.0.1"])
+
+        self._run_backend()
+
+        self._assert_expected_responses(
+            ["DATA", "deadcode.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
+            ["DATA", "deadcode.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "deadcode.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+        )
+
     def test_backend_responds_to_invalid_ip_in_ANY_request_with_self_ip(self):
         self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
 
