@@ -204,6 +204,10 @@ class DynamicBackend:
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
 
     def _split_subdomain(self, subdomain):
+        match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
+        if match:
+          s = match.group(1)
+          return [str(int(i, 16)) for i in [s[j:j+2] for j in (0,2,4,6)]]
         return re.split("[.-]", subdomain)
 
 
