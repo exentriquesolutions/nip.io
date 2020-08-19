@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ class DynamicBackendTest(unittest.TestCase):
         self.mock_sys.stderr.write = sys.stderr.write
 
         import nipio
+
         nipio.backend._is_debug = lambda: True
 
     def tearDown(self):
@@ -40,63 +41,137 @@ class DynamicBackendTest(unittest.TestCase):
         self.mock_sys_patcher.stop()
 
     def test_backend_ends_response_to_ANY_request_if_ip_is_blacklisted(self):
-        self._send_commands(["Q", "subdomain.127.0.0.2.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.2.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(["LOG", "Blacklisted: 127.0.0.2"])
 
     def test_backend_ends_response_to_A_request_if_ip_is_blacklisted(self):
-        self._send_commands(["Q", "subdomain.127.0.0.2.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.2.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
-        self._assert_expected_responses(
-            ["LOG", "Blacklisted: 127.0.0.2"]
-        )
+        self._assert_expected_responses(["LOG", "Blacklisted: 127.0.0.2"])
 
     def test_backend_responds_to_ANY_request_with_valid_ip(self):
-        self._send_commands(["Q", "subdomain.127.0.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
             ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.0.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.0.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_A_request_with_valid_ip(self):
-        self._send_commands(["Q", "subdomain.127.0.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
             ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.0.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.0.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_ANY_request_with_valid_ip_separated_by_dashes(self):
-        self._send_commands(["Q", "subdomain-127-0-0-1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain-127-0-0-1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
             ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain-127-0-0-1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain-127-0-0-1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_A_request_with_valid_ip_separated_by_dashes(self):
-        self._send_commands(["Q", "subdomain-127-0-0-1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain-127-0-0-1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
             ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain-127-0-0-1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain-127-0-0-1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_A_request_with_valid_ip_hexstring(self):
@@ -144,7 +219,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_invalid_ip_in_ANY_request_with_self_ip(self):
-        self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -155,7 +232,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_invalid_ip_in_A_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -188,51 +267,157 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_large_ip_in_ANY_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.300.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.300.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.33",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_large_ip_in_A_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.300.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.300.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.300.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.33",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.300.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_string_in_ip_in_ANY_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.33",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_string_in_ip_in_A_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.string.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.33",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.127.0.string.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
         )
 
     def test_backend_responds_to_no_ip_in_ANY_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -243,7 +428,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_no_ip_in_A_request_with_self(self):
-        self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -303,7 +490,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_SOA_request_for_valid_ip(self):
-        self._send_commands(["Q", "subdomain.127.0.0.1.lcl.io", "IN", "SOA", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.1.lcl.io", "IN", "SOA", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -312,7 +501,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_SOA_request_for_invalid_ip(self):
-        self._send_commands(["Q", "subdomain.127.0.1.lcl.io", "IN", "SOA", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.127.0.1.lcl.io", "IN", "SOA", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -338,7 +529,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "ns1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
-    def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(self):
+    def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(
+        self,
+    ):
         self._send_commands(["Q", "unknown.domain", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -366,7 +559,6 @@ class DynamicBackendTest(unittest.TestCase):
             call("\t"),
             call("We are good"),
             call("\n"),
-
             call("FAIL"),
             call("\n"),
         ]
@@ -383,31 +575,43 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.ip_address).is_equal_to("127.0.0.40")
         assert_that(backend.domain).is_equal_to("lcl.io")
         assert_that(backend.ttl).is_equal_to("1000")
-        assert_that(backend.name_servers).is_equal_to({"ns1.lcl.io": "127.0.0.41", "ns2.lcl.io" : "127.0.0.42"})
+        assert_that(backend.name_servers).is_equal_to(
+            {"ns1.lcl.io": "127.0.0.41", "ns2.lcl.io": "127.0.0.42"}
+        )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.100"])
         assert_that(backend.soa).is_equal_to("ns1.lcl.io emailaddress@lcl.io 55")
 
     def test_configure_with_environment_variables_set(self):
-        os.environ['NIPIO_DOMAIN'] = "example.com"
-        os.environ['NIPIO_TTL'] = "1000"
-        os.environ['NIPIO_NONWILD_DEFAULT_IP'] = "127.0.0.30"
-        os.environ['NIPIO_SOA_ID'] = "99"
-        os.environ['NIPIO_SOA_HOSTMASTER'] = "hostmaster@example.com"
-        os.environ['NIPIO_SOA_NS'] = "ns1.example.com"
-        os.environ['NIPIO_NAMESERVERS'] = "ns1.example.com=127.0.0.31 ns2.example.com=127.0.0.32"
-        os.environ['NIPIO_BLACKLIST'] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
+        os.environ["NIPIO_DOMAIN"] = "example.com"
+        os.environ["NIPIO_TTL"] = "1000"
+        os.environ["NIPIO_NONWILD_DEFAULT_IP"] = "127.0.0.30"
+        os.environ["NIPIO_SOA_ID"] = "99"
+        os.environ["NIPIO_SOA_HOSTMASTER"] = "hostmaster@example.com"
+        os.environ["NIPIO_SOA_NS"] = "ns1.example.com"
+        os.environ[
+            "NIPIO_NAMESERVERS"
+        ] = "ns1.example.com=127.0.0.31 ns2.example.com=127.0.0.32"
+        os.environ[
+            "NIPIO_BLACKLIST"
+        ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
 
         backend = self._configure_backend()
         assert_that(backend.id).is_equal_to("99")
         assert_that(backend.ip_address).is_equal_to("127.0.0.30")
         assert_that(backend.domain).is_equal_to("example.com")
         assert_that(backend.ttl).is_equal_to("1000")
-        assert_that(backend.name_servers).is_equal_to({"ns1.example.com": "127.0.0.31", "ns2.example.com": "127.0.0.32"})
+        assert_that(backend.name_servers).is_equal_to(
+            {"ns1.example.com": "127.0.0.31", "ns2.example.com": "127.0.0.32"}
+        )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
-        assert_that(backend.soa).is_equal_to("ns1.example.com hostmaster@example.com 99")
+        assert_that(backend.soa).is_equal_to(
+            "ns1.example.com hostmaster@example.com 99"
+        )
 
     def test_configure_with_env_blacklist_config(self):
-        os.environ['NIPIO_BLACKLIST'] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
+        os.environ[
+            "NIPIO_BLACKLIST"
+        ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
         backend = self._configure_backend(filename="backend_test_no_blacklist.conf")
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
 
@@ -445,15 +649,16 @@ class DynamicBackendTest(unittest.TestCase):
 
             calls.extend([call(response_item) for response_item in tab_separated])
 
-        calls.extend([
-            call("END"),
-            call("\n"),
-        ])
+        calls.extend(
+            [call("END"), call("\n"),]
+        )
 
         self.mock_sys.stdout.write.assert_has_calls(calls)
         assert_that(self.mock_sys.stdout.write.call_count).is_equal_to(len(calls))
 
-        assert_that(self.mock_sys.stdout.flush.call_count).is_equal_to(len(responses) + 2)
+        assert_that(self.mock_sys.stdout.flush.call_count).is_equal_to(
+            len(responses) + 2
+        )
 
     @staticmethod
     def _create_backend():
@@ -462,10 +667,9 @@ class DynamicBackendTest(unittest.TestCase):
         backend.soa = "MY_SOA"
         backend.ip_address = "127.0.0.33"
         backend.ttl = "200"
-        backend.name_servers = collections.OrderedDict([
-            ("ns1.lcl.io", "127.0.0.34"),
-            ("ns2.lcl.io", "127.0.0.35"),
-        ])
+        backend.name_servers = collections.OrderedDict(
+            [("ns1.lcl.io", "127.0.0.34"), ("ns2.lcl.io", "127.0.0.35"),]
+        )
         backend.domain = "lcl.io"
         backend.blacklisted_ips = ["127.0.0.2"]
         return backend
@@ -478,4 +682,3 @@ class DynamicBackendTest(unittest.TestCase):
 
     def _get_test_config_filename(self, filename):
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
-

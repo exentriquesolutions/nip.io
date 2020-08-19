@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright 2019 Exentrique Solutions Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,11 @@ def _is_debug():
 
 
 def _get_env_splitted(key, default=None, linesep=' ', pairsep='='):
-    return (line.split(pairsep) for line in os.getenv(key).split(linesep)) if os.getenv(key) else default
+    return (
+        (line.split(pairsep) for line in os.getenv(key).split(linesep))
+        if os.getenv(key)
+        else default
+    )
 
 
 def _log(msg):
@@ -82,15 +86,22 @@ class DynamicBackend:
         self.soa = '%s %s %s' % (
             os.getenv('NIPIO_SOA_NS', config.get('soa', 'ns')),
             os.getenv('NIPIO_SOA_HOSTMASTER', config.get('soa', 'hostmaster')),
-            self.id)
+            self.id,
+        )
         self.domain = os.getenv('NIPIO_DOMAIN', config.get('main', 'domain'))
-        self.ip_address = os.getenv('NIPIO_NONWILD_DEFAULT_IP', config.get('main', 'ipaddress'))
+        self.ip_address = os.getenv(
+            'NIPIO_NONWILD_DEFAULT_IP', config.get('main', 'ipaddress')
+        )
         self.ttl = os.getenv('NIPIO_TTL', config.get('main', 'ttl'))
-        self.name_servers = dict(_get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers')))
+        self.name_servers = dict(
+            _get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers'))
+        )
 
         if 'NIPIO_BLACKLIST' in os.environ or config.has_section("blacklist"):
-            for entry in _get_env_splitted('NIPIO_BLACKLIST',
-                                           config.items("blacklist") if config.has_section("blacklist") else None):
+            for entry in _get_env_splitted(
+                'NIPIO_BLACKLIST',
+                config.items("blacklist") if config.has_section("blacklist") else None,
+            ):
                 self.blacklisted_ips.append(entry[1])
 
         _log('Name servers: %s' % self.name_servers)
@@ -145,7 +156,7 @@ class DynamicBackend:
         _write('END')
 
     def handle_subdomains(self, qname):
-        subdomain = qname[0:qname.find(self.domain) - 1]
+        subdomain = qname[0 : qname.find(self.domain) - 1]
 
         subparts = self._split_subdomain(subdomain)
         if len(subparts) < 4:
@@ -175,7 +186,21 @@ class DynamicBackend:
             self.handle_blacklisted(ip_address)
             return
 
-        _write('DATA', qname, 'IN', 'A', self.ttl, self.id, '%s.%s.%s.%s' % (ip_address_parts[0], ip_address_parts[1], ip_address_parts[2], ip_address_parts[3]))
+        _write(
+            'DATA',
+            qname,
+            'IN',
+            'A',
+            self.ttl,
+            self.id,
+            '%s.%s.%s.%s'
+            % (
+                ip_address_parts[0],
+                ip_address_parts[1],
+                ip_address_parts[2],
+                ip_address_parts[3],
+            ),
+        )
         self.write_name_servers(qname)
         _write('END')
 
@@ -206,8 +231,8 @@ class DynamicBackend:
     def _split_subdomain(self, subdomain):
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
-          s = match.group(1)
-          return [str(int(i, 16)) for i in [s[j:j+2] for j in (0,2,4,6)]]
+            s = match.group(1)
+            return [str(int(i, 16)) for i in [s[j : j + 2] for j in (0, 2, 4, 6)]]
         return re.split("[.-]", subdomain)
 
 
