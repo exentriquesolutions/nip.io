@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright 2019 Exentrique Solutions Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import ConfigParser
+import configparser
 import os
 import re
 import sys
@@ -62,7 +62,7 @@ def _get_next():
     return line.strip().split('\t')
 
 
-class DynamicBackend:
+class DynamicBackend(object):
     def __init__(self):
         self.id = ''
         self.soa = ''
@@ -79,7 +79,7 @@ class DynamicBackend:
             sys.exit(1)
 
         with open(fname) as fp:
-            config = ConfigParser.ConfigParser()
+            config = configparser.ConfigParser()
             config.readfp(fp)
 
         self.id = os.getenv('NIPIO_SOA_ID', config.get('soa', 'id'))
