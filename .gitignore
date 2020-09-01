@@ -9,3 +9,5 @@ dist
 .idea/*.xml
 .idea/inspectionProfiles
 
+.cache
+.eggs
