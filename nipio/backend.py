@@ -63,6 +63,21 @@ def _get_next():
 
 
 class DynamicBackend(object):
+    """PowerDNS dynamic pipe backend.
+
+    Environment variables:
+    NIPIO_DOMAIN -- NIP.IO main domain.
+    NIPIO_TTL -- Default TTL for NIP.IO backend.
+    NIPIO_NONWILD_DEFAULT_IP -- Default IP address for non-wildcard entries.
+    NIPIO_SOA_ID -- SOA serial number.
+    NIPIO_SOA_HOSTMASTER -- SOA hostmaster email address.
+    NIPIO_SOA_NS -- SOA name server.
+    NIPIO_NAMESERVERS -- A space-seperated list of domain=ip nameserver pairs.
+    NIPIO_BLACKLIST -- A space-seperated list of description=ip blacklisted pairs.
+
+    https://doc.powerdns.com/authoritative/backends/pipe.html
+    """
+
     def __init__(self):
         self.id = ''
         self.soa = ''
@@ -73,6 +88,10 @@ class DynamicBackend(object):
         self.blacklisted_ips = []
 
     def configure(self):
+        """Configure the pipe backend using the backend.conf file.
+
+        Also reads configuration values from environment variables.
+        """
         fname = self._get_config_filename()
         if not os.path.exists(fname):
             _log('%s does not exist' % fname)
@@ -113,6 +132,10 @@ class DynamicBackend(object):
         _log("Blacklist: %s" % self.blacklisted_ips)
 
     def run(self):
+        """Run the pipe backend.
+
+        This is a loop that runs forever.
+        """
         _log('starting up')
         handshake = _get_next()
         if handshake[1] != '1':
