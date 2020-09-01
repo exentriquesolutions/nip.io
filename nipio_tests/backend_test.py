@@ -185,40 +185,34 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
         )
 
-    def test_backend_responds_to_long_hexstring_with_self(self):
+    def test_backend_responds_to_long_hexstring_with_invalid_response(self):
         self._send_commands(["Q", "deadbeefcafe.lcl.io", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "deadbeefcafe.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "deadbeefcafe.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "deadbeefcafe.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: deadbeefcafe.lcl.io"]
         )
 
-    def test_backend_responds_to_short_hexstring_with_self(self):
+    def test_backend_responds_to_short_hexstring_with_invalid_response(self):
         self._send_commands(["Q", "user-dec0ded.lcl.io", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "user-dec0ded.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "user-dec0ded.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "user-dec0ded.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: user-dec0ded.lcl.io"]
         )
 
-    def test_backend_responds_to_invalid_hexstring_with_self(self):
+    def test_backend_responds_to_invalid_hexstring_with_invalid_response(self):
         self._send_commands(["Q", "deadcode.lcl.io", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "deadcode.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "deadcode.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "deadcode.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: deadcode.lcl.io"]
         )
 
-    def test_backend_responds_to_invalid_ip_in_ANY_request_with_self_ip(self):
+    def test_backend_responds_to_invalid_ip_in_ANY_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -226,12 +220,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: subdomain.127.0.1.lcl.io"]
         )
 
-    def test_backend_responds_to_invalid_ip_in_A_request_with_self(self):
+    def test_backend_responds_to_invalid_ip_in_A_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
         )
@@ -239,34 +231,28 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: subdomain.127.0.1.lcl.io"]
         )
 
-    def test_backend_responds_to_short_ip_in_ANY_request_with_self_ip(self):
+    def test_backend_responds_to_short_ip_in_ANY_request_with_invalid_response(self):
         self._send_commands(["Q", "127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"])
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: 127.0.1.lcl.io"]
         )
 
-    def test_backend_responds_to_short_ip_in_A_request_with_self(self):
+    def test_backend_responds_to_short_ip_in_A_request_with_invalid_response(self):
         self._send_commands(["Q", "127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: 127.0.1.lcl.io"]
         )
 
-    def test_backend_responds_to_large_ip_in_ANY_request_with_self(self):
+    def test_backend_responds_to_large_ip_in_ANY_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.300.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -274,36 +260,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "A",
-                "200",
-                "22",
-                "127.0.0.33",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns1.lcl.io",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns2.lcl.io",
-            ],
+            ["LOG", "Invalid IP address: subdomain.127.0.300.1.lcl.io"]
         )
 
-    def test_backend_responds_to_large_ip_in_A_request_with_self(self):
+    def test_backend_responds_to_large_ip_in_A_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.300.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
         )
@@ -311,36 +271,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "A",
-                "200",
-                "22",
-                "127.0.0.33",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns1.lcl.io",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.300.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns2.lcl.io",
-            ],
+            ["LOG", "Invalid IP address: subdomain.127.0.300.1.lcl.io"]
         )
 
-    def test_backend_responds_to_string_in_ip_in_ANY_request_with_self(self):
+    def test_backend_responds_to_string_in_ip_in_ANY_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -348,36 +282,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "A",
-                "200",
-                "22",
-                "127.0.0.33",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns1.lcl.io",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns2.lcl.io",
-            ],
+            ["LOG", "Invalid IP address: subdomain.127.0.string.1.lcl.io"]
         )
 
-    def test_backend_responds_to_string_in_ip_in_A_request_with_self(self):
+    def test_backend_responds_to_string_in_ip_in_A_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.STRING.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
         )
@@ -385,36 +293,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "A",
-                "200",
-                "22",
-                "127.0.0.33",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns1.lcl.io",
-            ],
-            [
-                "DATA",
-                "subdomain.127.0.string.1.lcl.io",
-                "IN",
-                "NS",
-                "200",
-                "22",
-                "ns2.lcl.io",
-            ],
+            ["LOG", "Invalid IP address: subdomain.127.0.string.1.lcl.io"]
         )
 
-    def test_backend_responds_to_no_ip_in_ANY_request_with_self(self):
+    def test_backend_responds_to_no_ip_in_ANY_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -422,12 +304,10 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: subdomain.127.0.1.lcl.io"]
         )
 
-    def test_backend_responds_to_no_ip_in_A_request_with_self(self):
+    def test_backend_responds_to_no_ip_in_A_request_with_invalid_response(self):
         self._send_commands(
             ["Q", "subdomain.127.0.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
         )
@@ -435,9 +315,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["LOG", "Invalid IP address: subdomain.127.0.1.lcl.io"]
         )
 
     def test_backend_responds_to_self_domain_to_A_request(self):

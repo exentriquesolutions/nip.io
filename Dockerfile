@@ -1,6 +1,6 @@
 FROM alpine:3.7
 
-RUN apk add --no-cache pdns pdns-backend-pipe python2
+RUN apk add --no-cache pdns pdns-backend-pipe python3
 
 EXPOSE 53/tcp 53/udp
 

@@ -80,7 +80,7 @@ class DynamicBackend(object):
 
         with open(fname) as fp:
             config = configparser.ConfigParser()
-            config.readfp(fp)
+            config.read_file(fp)
 
         self.id = os.getenv('NIPIO_SOA_ID', config.get('soa', 'id'))
         self.soa = '%s %s %s' % (
@@ -162,7 +162,7 @@ class DynamicBackend(object):
         if len(subparts) < 4:
             if _is_debug():
                 _log('subparts less than 4')
-            self.handle_self(qname)
+            self.handle_invalid_ip(qname)
             return
 
         ip_address_parts = subparts[-4:]
@@ -172,13 +172,13 @@ class DynamicBackend(object):
             if re.match('^\d{1,3}$', part) is None:
                 if _is_debug():
                     _log('%s is not a number' % part)
-                self.handle_self(qname)
+                self.handle_invalid_ip(qname)
                 return
             part_int = int(part)
             if part_int < 0 or part_int > 255:
                 if _is_debug():
                     _log('%d is too big/small' % part_int)
-                self.handle_self(qname)
+                self.handle_invalid_ip(qname)
                 return
 
         ip_address = ".".join(ip_address_parts)
@@ -223,6 +223,10 @@ class DynamicBackend(object):
 
     def handle_blacklisted(self, ip_address):
         _write('LOG', 'Blacklisted: %s' % ip_address)
+        _write('END')
+
+    def handle_invalid_ip(self, ip_address):
+        _write('LOG', 'Invalid IP address: %s' % ip_address)
         _write('END')
 
     def _get_config_filename(self):
