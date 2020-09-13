@@ -78,7 +78,7 @@ class DynamicBackend(object):
     https://doc.powerdns.com/authoritative/backends/pipe.html
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = ''
         self.soa = ''
         self.domain = ''
@@ -87,7 +87,7 @@ class DynamicBackend(object):
         self.name_servers = {}
         self.blacklisted_ips = []
 
-    def configure(self):
+    def configure(self) -> None:
         """Configure the pipe backend using the backend.conf file.
 
         Also reads configuration values from environment variables.
@@ -131,7 +131,7 @@ class DynamicBackend(object):
         _log('DOMAIN: %s' % self.domain)
         _log("Blacklist: %s" % self.blacklisted_ips)
 
-    def run(self):
+    def run(self) -> None:
         """Run the pipe backend.
 
         This is a loop that runs forever.
@@ -173,12 +173,12 @@ class DynamicBackend(object):
             else:
                 self.handle_unknown(qtype, qname)
 
-    def handle_self(self, name):
+    def handle_self(self, name: str) -> None:
         _write('DATA', name, 'IN', 'A', self.ttl, self.id, self.ip_address)
         self.write_name_servers(name)
         _write('END')
 
-    def handle_subdomains(self, qname):
+    def handle_subdomains(self, qname: str) -> None:
         subdomain = qname[0 : qname.find(self.domain) - 1]
 
         subparts = self._split_subdomain(subdomain)
@@ -227,28 +227,28 @@ class DynamicBackend(object):
         self.write_name_servers(qname)
         _write('END')
 
-    def handle_nameservers(self, qname):
+    def handle_nameservers(self, qname: str) -> None:
         ip = self.name_servers[qname]
         _write('DATA', qname, 'IN', 'A', self.ttl, self.id, ip)
         _write('END')
 
-    def write_name_servers(self, qname):
+    def write_name_servers(self, qname: str) -> None:
         for nameServer in self.name_servers:
             _write('DATA', qname, 'IN', 'NS', self.ttl, self.id, nameServer)
 
-    def handle_soa(self, qname):
+    def handle_soa(self, qname: str) -> None:
         _write('DATA', qname, 'IN', 'SOA', self.ttl, self.id, self.soa)
         _write('END')
 
-    def handle_unknown(self, qtype, qname):
+    def handle_unknown(self, qtype: str, qname: str) -> None:
         _write('LOG', 'Unknown type: %s, domain: %s' % (qtype, qname))
         _write('END')
 
-    def handle_blacklisted(self, ip_address):
+    def handle_blacklisted(self, ip_address: str) -> None:
         _write('LOG', 'Blacklisted: %s' % ip_address)
         _write('END')
 
-    def handle_invalid_ip(self, ip_address):
+    def handle_invalid_ip(self, ip_address: str) -> None:
         _write('LOG', 'Invalid IP address: %s' % ip_address)
         _write('END')
 
