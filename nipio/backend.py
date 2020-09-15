@@ -233,8 +233,8 @@ class DynamicBackend(object):
         _write('END')
 
     def write_name_servers(self, qname: str) -> None:
-        for nameServer in self.name_servers:
-            _write('DATA', qname, 'IN', 'NS', self.ttl, self.id, nameServer)
+        for name_server in self.name_servers:
+            _write('DATA', qname, 'IN', 'NS', self.ttl, self.id, name_server)
 
     def handle_soa(self, qname: str) -> None:
         _write('DATA', qname, 'IN', 'SOA', self.ttl, self.id, self.soa)
