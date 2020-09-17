@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""A custom PipeBackend for PowerDNS that does wildcard DNS for any IP address."""
 
 import configparser
 import os
@@ -74,6 +75,11 @@ class DynamicBackend(object):
     NIPIO_SOA_NS -- SOA name server.
     NIPIO_NAMESERVERS -- A space-seperated list of domain=ip nameserver pairs.
     NIPIO_BLACKLIST -- A space-seperated list of description=ip blacklisted pairs.
+
+    Example:
+    backend = DynamicBackend()
+    backend.configure()
+    backend.run()
 
     https://doc.powerdns.com/authoritative/backends/pipe.html
     """
