@@ -1,6 +1,7 @@
 *.ipr
 *.iml
 *.iws
+*.pyc
 .DS_Store
 build
 nip.io.egg-info
