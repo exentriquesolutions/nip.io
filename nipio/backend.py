@@ -93,12 +93,12 @@ class DynamicBackend(object):
         self.name_servers = {}
         self.blacklisted_ips = []
 
-    def configure(self) -> None:
+    def configure(self, config_file: str = 'backend.conf')) -> None:
         """Configure the pipe backend using the backend.conf file.
 
         Also reads configuration values from environment variables.
         """
-        fname = self._get_config_filename()
+        fname = self._get_config_filename(config_file)
         if not os.path.exists(fname):
             _log('%s does not exist' % fname)
             sys.exit(1)
@@ -258,8 +258,8 @@ class DynamicBackend(object):
         _write('LOG', 'Invalid IP address: %s' % ip_address)
         _write('END')
 
-    def _get_config_filename(self):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
+    def _get_config_filename(self, config_file):
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), config_file)
 
     def _split_subdomain(self, subdomain):
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
