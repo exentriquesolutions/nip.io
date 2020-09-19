@@ -33,7 +33,7 @@ def _get_env_splitted(key, default=None, linesep=' ', pairsep='='):
 
 
 def _log(msg):
-    sys.stderr.write(f'backend ({os.getpid()}): {msg}\n')
+    sys.stderr.write('backend (%s): %s\n' % (os.getpid(), msg))
 
 
 def _write(*l):
@@ -61,6 +61,10 @@ def _get_next():
     if _is_debug():
         _log('read line: %s' % line)
     return line.strip().split('\t')
+
+
+def _get_default_config_file() -> str:
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
 
 
 class DynamicBackend(object):
@@ -93,20 +97,16 @@ class DynamicBackend(object):
         self.name_servers = {}
         self.blacklisted_ips = []
 
-    def configure(self, config_file: str = 'backend.conf') -> None:
+    def configure(self, config_filename: str = _get_default_config_file()) -> None:
         """Configure the pipe backend using the backend.conf file.
 
         Also reads configuration values from environment variables.
-        
-        Args:
-        config_file: The configuration file to use. Defaults to 'backend.conf'.
         """
-        fname = self._get_config_filename(config_file)
-        if not os.path.exists(fname):
-            _log('%s does not exist' % fname)
+        if not os.path.exists(config_filename):
+            _log('%s does not exist' % config_filename)
             sys.exit(1)
 
-        with open(fname) as fp:
+        with open(config_filename) as fp:
             config = configparser.ConfigParser()
             config.read_file(fp)
 
@@ -201,7 +201,7 @@ class DynamicBackend(object):
         if _is_debug():
             _log(f'ip: {ip_address_parts}')
         for part in ip_address_parts:
-            if re.match('^\d{1,3}$', part) is None:
+            if re.match(r'^\d{1,3}$', part) is None:
                 if _is_debug():
                     _log(f'{part} is not a number')
                 self.handle_invalid_ip(qname)
@@ -261,7 +261,7 @@ class DynamicBackend(object):
         _write('LOG', f'Invalid IP address: {ip_address}')
         _write('END')
 
-    def _get_config_filename(self, config_file):
+    def _get_config_filename(config_file: str) -> str:
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), config_file)
 
     def _split_subdomain(self, subdomain):
