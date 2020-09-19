@@ -42,7 +42,7 @@ def _write(*l):
     for a in l:
         c += 1
         if _is_debug():
-            _log('writing: %s' % a)
+            _log(f'writing: {a}')
         sys.stdout.write(a)
         if c < args:
             if _is_debug():
@@ -132,13 +132,13 @@ class DynamicBackend(object):
             ):
                 self.blacklisted_ips.append(entry[1])
 
-        _log('Name servers: %s' % self.name_servers)
-        _log('ID: %s' % self.id)
-        _log('TTL %s' % self.ttl)
-        _log('SOA: %s' % self.soa)
-        _log('IP Address: %s' % self.ip_address)
-        _log('DOMAIN: %s' % self.domain)
-        _log("Blacklist: %s" % self.blacklisted_ips)
+        _log(f'Name servers: {self.name_servers}')
+        _log(f'ID: {self.id}')
+        _log(f'TTL: {self.ttl}')
+        _log(f'SOA: {self.soa}')
+        _log(f'IP address: {self.ip_address}')
+        _log(f'Domain: {self.domain}') 
+        _log(f"Blacklist: {self.blacklisted_ips}")
 
     def run(self) -> None:
         """Run the pipe backend.
@@ -148,7 +148,7 @@ class DynamicBackend(object):
         _log('starting up')
         handshake = _get_next()
         if handshake[1] != '1':
-            _log('Not version 1: %s' % handshake)
+            _log(f'Not version 1: {handshake}')
             sys.exit(1)
         _write('OK', 'We are good')
         _log('Done handshake')
@@ -156,14 +156,14 @@ class DynamicBackend(object):
         while True:
             cmd = _get_next()
             if _is_debug():
-                _log("cmd: %s" % cmd)
+                _log(f"cmd: {cmd}")
 
             if cmd[0] == "END":
                 _log("completing")
                 break
 
             if len(cmd) < 6:
-                _log('did not understand: %s' % cmd)
+                _log(f'did not understand: {cmd}')
                 _write('FAIL')
                 continue
 
@@ -199,17 +199,17 @@ class DynamicBackend(object):
 
         ip_address_parts = subparts[-4:]
         if _is_debug():
-            _log('ip: %s' % ip_address_parts)
+            _log(f'ip: {ip_address_parts}')
         for part in ip_address_parts:
             if re.match(r'^\d{1,3}$', part) is None:
                 if _is_debug():
-                    _log('%s is not a number' % part)
+                    _log(f'{part} is not a number')
                 self.handle_invalid_ip(qname)
                 return
             part_int = int(part)
             if part_int < 0 or part_int > 255:
                 if _is_debug():
-                    _log('%d is too big/small' % part_int)
+                    _log(f'{part_int} is too big/small')
                 self.handle_invalid_ip(qname)
                 return
 
@@ -250,15 +250,15 @@ class DynamicBackend(object):
         _write('END')
 
     def handle_unknown(self, qtype: str, qname: str) -> None:
-        _write('LOG', 'Unknown type: %s, domain: %s' % (qtype, qname))
+        _write('LOG', f'Unknown type: {qtype}, domain: {qname}')
         _write('END')
 
     def handle_blacklisted(self, ip_address: str) -> None:
-        _write('LOG', 'Blacklisted: %s' % ip_address)
+        _write('LOG', f'Blacklisted: {ip_address}')
         _write('END')
 
     def handle_invalid_ip(self, ip_address: str) -> None:
-        _write('LOG', 'Invalid IP address: %s' % ip_address)
+        _write('LOG', f'Invalid IP address: {ip_address}')
         _write('END')
 
     def _get_config_filename(config_file: str) -> str:
