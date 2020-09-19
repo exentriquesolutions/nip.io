@@ -63,6 +63,10 @@ def _get_next():
     return line.strip().split('\t')
 
 
+def _get_default_config_file() -> str:
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
+
+
 class DynamicBackend(object):
     """PowerDNS dynamic pipe backend.
 
@@ -93,12 +97,11 @@ class DynamicBackend(object):
         self.name_servers = {}
         self.blacklisted_ips = []
 
-    def configure(self, config_file: str = 'backend.conf') -> None:
+    def configure(self, config_filename: str = _get_default_config_file()) -> None:
         """Configure the pipe backend using the backend.conf file.
 
         Also reads configuration values from environment variables.
         """
-        config_filename = DynamicBackend._get_config_filename(config_file)
         if not os.path.exists(config_filename):
             _log('%s does not exist' % config_filename)
             sys.exit(1)
@@ -258,7 +261,6 @@ class DynamicBackend(object):
         _write('LOG', 'Invalid IP address: %s' % ip_address)
         _write('END')
 
-    @staticmethod
     def _get_config_filename(config_file: str) -> str:
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), config_file)
 

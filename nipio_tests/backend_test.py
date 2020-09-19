@@ -23,6 +23,10 @@ from mock.mock import patch, call
 from nipio.backend import DynamicBackend
 
 
+def _get_test_config_filename(filename):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+
+
 class DynamicBackendTest(unittest.TestCase):
     def setUp(self):
         os.environ.clear()
@@ -555,10 +559,5 @@ class DynamicBackendTest(unittest.TestCase):
     @staticmethod
     def _configure_backend(filename="backend_test.conf"):
         backend = DynamicBackend()
-        DynamicBackend._get_config_filename = lambda ignored: DynamicBackendTest._get_test_config_filename(filename)
-        backend.configure()
+        backend.configure(_get_test_config_filename(filename))
         return backend
-
-    @staticmethod
-    def _get_test_config_filename(filename):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
