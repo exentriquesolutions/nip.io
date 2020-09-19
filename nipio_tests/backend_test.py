@@ -552,11 +552,13 @@ class DynamicBackendTest(unittest.TestCase):
         backend.blacklisted_ips = ["127.0.0.2"]
         return backend
 
-    def _configure_backend(self, filename="backend_test.conf"):
+    @staticmethod
+    def _configure_backend(filename="backend_test.conf"):
         backend = DynamicBackend()
-        backend._get_config_filename = lambda: self._get_test_config_filename(filename)
+        DynamicBackend._get_config_filename = lambda ignored: DynamicBackendTest._get_test_config_filename(filename)
         backend.configure()
         return backend
 
-    def _get_test_config_filename(self, filename):
+    @staticmethod
+    def _get_test_config_filename(filename):
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
