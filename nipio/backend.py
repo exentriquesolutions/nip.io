@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019 Exentrique Solutions Ltd
+# Copyright 2019–2020 Exentrique Solutions Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,15 +36,15 @@ def _log(msg):
     sys.stderr.write('backend (%s): %s\n' % (os.getpid(), msg))
 
 
-def _write(*l):
-    args = len(l)
+def _write(*args):
+    args_len = len(args)
     c = 0
-    for a in l:
+    for arg in args:
         c += 1
         if _is_debug():
-            _log(f'writing: {a}')
-        sys.stdout.write(a)
-        if c < args:
+            _log(f'writing: {arg}')
+        sys.stdout.write(arg)
+        if c < args_len:
             if _is_debug():
                 _log('writetab')
             sys.stdout.write('\t')
@@ -218,21 +218,7 @@ class DynamicBackend(object):
             self.handle_blacklisted(ip_address)
             return
 
-        _write(
-            'DATA',
-            qname,
-            'IN',
-            'A',
-            self.ttl,
-            self.id,
-            '%s.%s.%s.%s'
-            % (
-                ip_address_parts[0],
-                ip_address_parts[1],
-                ip_address_parts[2],
-                ip_address_parts[3],
-            ),
-        )
+        _write('DATA', qname, 'IN', 'A', self.ttl, self.id, ip_address)
         self.write_name_servers(qname)
         _write('END')
 
