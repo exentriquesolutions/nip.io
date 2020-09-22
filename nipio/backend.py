@@ -59,7 +59,7 @@ def _get_next():
         _log('reading now')
     line = sys.stdin.readline()
     if _is_debug():
-        _log('read line: %s' % line)
+        _log(f'read line: {line}')
     return line.strip().split('\t')
 
 
@@ -103,7 +103,7 @@ class DynamicBackend(object):
         Also reads configuration values from environment variables.
         """
         if not os.path.exists(config_filename):
-            _log('%s does not exist' % config_filename)
+            _log(f'file {config_filename} does not exist')
             sys.exit(1)
 
         with open(config_filename) as fp:
