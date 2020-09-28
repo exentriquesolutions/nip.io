@@ -523,7 +523,7 @@ class DynamicBackendTest(unittest.TestCase):
         backend.run()
 
     def _send_commands(self, *commands):
-        commands_to_send = ["HELO\t1\n"]
+        commands_to_send = ["HELO\t5\n"]
 
         for command in commands:
             commands_to_send.append("\t".join(command) + "\n")
