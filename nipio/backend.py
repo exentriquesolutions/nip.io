@@ -96,6 +96,8 @@ class DynamicBackend(object):
         self.ttl = ''
         self.name_servers = {}
         self.blacklisted_ips = []
+        self.bits = 0;
+        self.auth = 1;
 
     def configure(self, config_filename: str = _get_default_config_file()) -> None:
         """Configure the pipe backend using the backend.conf file.
@@ -147,16 +149,21 @@ class DynamicBackend(object):
         """
         _log('starting up')
         handshake = _get_next()
-        if handshake[1] != '1':
-            _log(f'Not version 1: {handshake}')
+        if handshake[1] != '5':
+            _log(f'Not version 5: {handshake}')
             sys.exit(1)
-        _write('OK', 'We are good')
+        _write('OK', 'nip.io backend - We are good')
         _log('Done handshake')
 
         while True:
             cmd = _get_next()
             if _is_debug():
                 _log(f"cmd: {cmd}")
+
+            if cmd[0] == "CMD":
+                _log(f"received command: {cmd}")
+                self.handle_command(cmd)
+                continue
 
             if cmd[0] == "END":
                 _log("completing")
@@ -182,8 +189,11 @@ class DynamicBackend(object):
             else:
                 self.handle_unknown(qtype, qname)
 
+    def handle_command(self, cmd) -> None:
+        _write('END')
+
     def handle_self(self, name: str) -> None:
-        _write('DATA', name, 'IN', 'A', self.ttl, self.id, self.ip_address)
+        _write('DATA', self.bits, self.auth, name, 'IN', 'A', self.ttl, self.id, self.ip_address)
         self.write_name_servers(name)
         _write('END')
 
@@ -218,21 +228,21 @@ class DynamicBackend(object):
             self.handle_blacklisted(ip_address)
             return
 
-        _write('DATA', qname, 'IN', 'A', self.ttl, self.id, ip_address)
+        _write('DATA', self.bits, self.auth, qname, 'IN', 'A', self.ttl, self.id, ip_address)
         self.write_name_servers(qname)
         _write('END')
 
     def handle_nameservers(self, qname: str) -> None:
         ip = self.name_servers[qname]
-        _write('DATA', qname, 'IN', 'A', self.ttl, self.id, ip)
+        _write('DATA', self.bits, self.auth, qname, 'IN', 'A', self.ttl, self.id, ip)
         _write('END')
 
     def write_name_servers(self, qname: str) -> None:
         for name_server in self.name_servers:
-            _write('DATA', qname, 'IN', 'NS', self.ttl, self.id, name_server)
+            _write('DATA', self.bits, self.auth, qname, 'IN', 'NS', self.ttl, self.id, name_server)
 
     def handle_soa(self, qname: str) -> None:
-        _write('DATA', qname, 'IN', 'SOA', self.ttl, self.id, self.soa)
+        _write('DATA', self.bits, self.auth, qname, 'IN', 'SOA', self.ttl, self.id, self.soa)
         _write('END')
 
     def handle_unknown(self, qtype: str, qname: str) -> None:
