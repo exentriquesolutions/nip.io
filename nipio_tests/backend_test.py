@@ -536,7 +536,7 @@ class DynamicBackendTest(unittest.TestCase):
         calls = [
             call("OK"),
             call("\t"),
-            call("We are good"),
+            call("nip.io backend - We are good"),
             call("\n"),
         ]
 
