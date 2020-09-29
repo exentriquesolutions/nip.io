@@ -96,8 +96,8 @@ class DynamicBackend(object):
         self.ttl = ''
         self.name_servers = {}
         self.blacklisted_ips = []
-        self.bits = 0;
-        self.auth = 1;
+        self.bits = '0';
+        self.auth = '1';
 
     def configure(self, config_filename: str = _get_default_config_file()) -> None:
         """Configure the pipe backend using the backend.conf file.
