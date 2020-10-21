@@ -81,6 +81,68 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(["LOG", "Rejected IP address: 10.0.10.1"])
 
+    def test_backend_with_empty_whitelist_responds_to_ANY_request_for_valid_ip(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
+
+        backend = self._create_backend()
+        backend.whitelisted_ranges = []
+        backend.run()
+
+        self._assert_expected_responses(
+            ["DATA", "subdomain.10.0.10.1.lcl.io", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
+        )
+
+    def test_backend_with_empty_whitelist_responds_to_A_request_for_valid_ip(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
+
+        backend = self._create_backend()
+        backend.whitelisted_ranges = []
+        backend.run()
+
+        self._assert_expected_responses(
+            ["DATA", "subdomain.10.0.10.1.lcl.io", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
+        )
+
     def test_backend_responds_to_ANY_request_with_valid_ip(self):
         self._send_commands(
             ["Q", "subdomain.127.0.0.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
