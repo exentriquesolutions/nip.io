@@ -4,8 +4,8 @@
 
 Dead simple wildcard DNS for any IP Address.
 
-[NIP.IO](http://nip.io) is powered by [PowerDNS](https://powerdns.com) with a simple, 
-custom [PipeBackend](https://doc.powerdns.com/authoritative/backends/pipe.html): 
+[NIP.IO](http://nip.io) is powered by [PowerDNS](https://powerdns.com) with a simple,
+custom [PipeBackend](https://doc.powerdns.com/authoritative/backends/pipe.html):
 [backend.py](nipio/backend.py)
 
 Head to [NIP.IO](http://nip.io) for more details.
@@ -30,8 +30,11 @@ environment variables override those:
 
 `NIPIO_SOA_NS`: SOA name server.
 
-`NIPIO_NAMESERVERS`: A space seperated list of domain=ip nameserver pairs. Example: `ns1.nip.io=127.0.0.1 ns2.nip.io=127.0.0.1`.
+`NIPIO_NAMESERVERS`: A space-separated list of domain=ip nameserver pairs. Example: `ns1.nip.io=127.0.0.1 ns2.nip.io=127.0.0.1`.
 
-`NIPIO_BLACKLIST`: A space seperated list of description=ip blacklisted pairs. Example: `some_description=10.0.0.1 other_description=10.0.0.2`.
+`NIPIO_WHITELIST`: A space-separated list of description=range pairs for whitelisted ranges in CIDR format.
+An IP address must be in one of the whitelisted ranges for a response to be returned. Example: `whitelist1=192.168.0.0/16 whitelist2=127.0.0.0/8`.
+
+`NIPIO_BLACKLIST`: A space-separated list of description=ip blacklisted pairs. Example: `some_description=10.0.0.1 other_description=10.0.0.2`.
 
 This is useful if you're creating your own [Dockerfile](Dockerfile).

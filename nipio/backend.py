@@ -18,6 +18,7 @@ import configparser
 import os
 import re
 import sys
+from ipaddress import IPv4Address, IPv4Network, AddressValueError
 
 
 def _is_debug():
@@ -77,8 +78,10 @@ class DynamicBackend(object):
     NIPIO_SOA_ID -- SOA serial number.
     NIPIO_SOA_HOSTMASTER -- SOA hostmaster email address.
     NIPIO_SOA_NS -- SOA name server.
-    NIPIO_NAMESERVERS -- A space-seperated list of domain=ip nameserver pairs.
-    NIPIO_BLACKLIST -- A space-seperated list of description=ip blacklisted pairs.
+    NIPIO_NAMESERVERS -- A space-separated list of domain=ip nameserver pairs.
+    NIPIO_WHITELIST -- A space-separated list of description=range pairs to whitelist.
+                       The range should be in CIDR format.
+    NIPIO_BLACKLIST -- A space-separated list of description=ip blacklisted pairs.
 
     Example:
     backend = DynamicBackend()
@@ -95,9 +98,10 @@ class DynamicBackend(object):
         self.ip_address = ''
         self.ttl = ''
         self.name_servers = {}
+        self.whitelisted_ranges = []
         self.blacklisted_ips = []
-        self.bits = '0';
-        self.auth = '1';
+        self.bits = '0'
+        self.auth = '1'
 
     def configure(self, config_filename: str = _get_default_config_file()) -> None:
         """Configure the pipe backend using the backend.conf file.
@@ -127,10 +131,18 @@ class DynamicBackend(object):
             _get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers'))
         )
 
+        if 'NIPIO_WHITELIST' in os.environ or config.has_section("whitelist"):
+            for entry in _get_env_splitted(
+                    'NIPIO_WHITELIST',
+                    config.items("whitelist") if config.has_section("whitelist") else None,
+            ):
+                # Convert the given range to an IPv4Network
+                self.whitelisted_ranges.append(IPv4Network(entry[1]))
+
         if 'NIPIO_BLACKLIST' in os.environ or config.has_section("blacklist"):
             for entry in _get_env_splitted(
-                'NIPIO_BLACKLIST',
-                config.items("blacklist") if config.has_section("blacklist") else None,
+                    'NIPIO_BLACKLIST',
+                    config.items("blacklist") if config.has_section("blacklist") else None,
             ):
                 self.blacklisted_ips.append(entry[1])
 
@@ -139,8 +151,9 @@ class DynamicBackend(object):
         _log(f'TTL: {self.ttl}')
         _log(f'SOA: {self.soa}')
         _log(f'IP address: {self.ip_address}')
-        _log(f'Domain: {self.domain}') 
-        _log(f"Blacklist: {self.blacklisted_ips}")
+        _log(f'Domain: {self.domain}')
+        _log(f"Whitelisted IP ranges: {[str(r) for r in self.whitelisted_ranges]}")
+        _log(f"Blacklisted IPs: {self.blacklisted_ips}")
 
     def run(self) -> None:
         """Run the pipe backend.
@@ -198,7 +211,7 @@ class DynamicBackend(object):
         _write('END')
 
     def handle_subdomains(self, qname: str) -> None:
-        subdomain = qname[0 : qname.find(self.domain) - 1]
+        subdomain = qname[0: qname.find(self.domain) - 1]
 
         subparts = self._split_subdomain(subdomain)
         if len(subparts) < 4:
@@ -207,28 +220,27 @@ class DynamicBackend(object):
             self.handle_invalid_ip(qname)
             return
 
-        ip_address_parts = subparts[-4:]
+        # Calculate the IP address string from the extracts parts
+        try:
+            ip_address = IPv4Address(".".join(subparts[-4:]))
+        except AddressValueError:
+            self.handle_invalid_ip(qname)
+            return
         if _is_debug():
-            _log(f'ip: {ip_address_parts}')
-        for part in ip_address_parts:
-            if re.match(r'^\d{1,3}$', part) is None:
-                if _is_debug():
-                    _log(f'{part} is not a number')
-                self.handle_invalid_ip(qname)
-                return
-            part_int = int(part)
-            if part_int < 0 or part_int > 255:
-                if _is_debug():
-                    _log(f'{part_int} is too big/small')
-                self.handle_invalid_ip(qname)
-                return
+            _log(f'extracted ip: {ip_address}')
 
-        ip_address = ".".join(ip_address_parts)
-        if ip_address in self.blacklisted_ips:
+        if self.whitelisted_ranges and not any(ip_address in ip_range for ip_range in self.whitelisted_ranges):
+            self.handle_not_whitelisted(ip_address)
+            return
+
+        if str(ip_address) in self.blacklisted_ips:
             self.handle_blacklisted(ip_address)
             return
 
-        _write('DATA', self.bits, self.auth, qname, 'IN', 'A', self.ttl, self.id, ip_address)
+        self.handle_resolved(ip_address, qname)
+
+    def handle_resolved(self, address: IPv4Address, qname: str):
+        _write('DATA', self.bits, self.auth, qname, 'IN', 'A', self.ttl, self.id, str(address))
         self.write_name_servers(qname)
         _write('END')
 
@@ -249,7 +261,11 @@ class DynamicBackend(object):
         _write('LOG', f'Unknown type: {qtype}, domain: {qname}')
         _write('END')
 
-    def handle_blacklisted(self, ip_address: str) -> None:
+    def handle_not_whitelisted(self, ip_address: IPv4Address) -> None:
+        _write('LOG', f'Not Whitelisted: {ip_address}')
+        _write('END')
+
+    def handle_blacklisted(self, ip_address: IPv4Address) -> None:
         _write('LOG', f'Blacklisted: {ip_address}')
         _write('END')
 
@@ -257,14 +273,11 @@ class DynamicBackend(object):
         _write('LOG', f'Invalid IP address: {ip_address}')
         _write('END')
 
-    def _get_config_filename(config_file: str) -> str:
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), config_file)
-
     def _split_subdomain(self, subdomain):
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
             s = match.group(1)
-            return [str(int(i, 16)) for i in [s[j : j + 2] for j in (0, 2, 4, 6)]]
+            return [str(int(i, 16)) for i in [s[j: j + 2] for j in (0, 2, 4, 6)]]
         return re.split("[.-]", subdomain)
 
 

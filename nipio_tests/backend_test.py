@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import collections
+import ipaddress
 import os
 import sys
 import unittest
@@ -61,6 +62,90 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(["LOG", "Blacklisted: 127.0.0.2"])
+
+    def test_backend_ends_response_to_ANY_request_if_ip_is_not_whitelisted(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
+
+        self._run_backend()
+
+        self._assert_expected_responses(["LOG", "Not Whitelisted: 10.0.10.1"])
+
+    def test_backend_ends_response_to_A_request_if_ip_is_not_whitelisted(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
+
+        self._run_backend()
+
+        self._assert_expected_responses(["LOG", "Not Whitelisted: 10.0.10.1"])
+
+    def test_backend_with_empty_whitelist_responds_to_ANY_request_for_valid_ip(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "ANY", "1", "127.0.0.1"]
+        )
+
+        self._run_backend_without_whitelist()
+
+        self._assert_expected_responses(
+            ["DATA", "0", "1", "subdomain.10.0.10.1.lcl.io", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
+        )
+
+    def test_backend_with_empty_whitelist_responds_to_A_request_for_valid_ip(self):
+        self._send_commands(
+            ["Q", "subdomain.10.0.10.1.lcl.io", "IN", "A", "1", "127.0.0.1"]
+        )
+
+        self._run_backend_without_whitelist()
+
+        self._assert_expected_responses(
+            ["DATA", "0", "1", "subdomain.10.0.10.1.lcl.io", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.lcl.io",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.lcl.io",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.lcl.io",
+            ],
+        )
 
     def test_backend_responds_to_ANY_request_with_valid_ip(self):
         self._send_commands(
@@ -428,7 +513,7 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(
-        self,
+            self,
     ):
         self._send_commands(["Q", "unknown.domain", "IN", "A", "1", "127.0.0.1"])
 
@@ -476,6 +561,10 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.name_servers).is_equal_to(
             {"ns1.lcl.io": "127.0.0.41", "ns2.lcl.io": "127.0.0.42"}
         )
+        assert_that(backend.whitelisted_ranges).is_equal_to([
+            ipaddress.IPv4Network('127.0.0.0/8'),
+            ipaddress.IPv4Network('192.168.0.0/16'),
+        ])
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.100"])
         assert_that(backend.soa).is_equal_to("ns1.lcl.io emailaddress@lcl.io 55")
 
@@ -489,6 +578,7 @@ class DynamicBackendTest(unittest.TestCase):
         os.environ[
             "NIPIO_NAMESERVERS"
         ] = "ns1.example.com=127.0.0.31 ns2.example.com=127.0.0.32"
+        os.environ["NIPIO_WHITELIST"] = "whitelist1=10.0.0.0/8"
         os.environ[
             "NIPIO_BLACKLIST"
         ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
@@ -501,25 +591,39 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.name_servers).is_equal_to(
             {"ns1.example.com": "127.0.0.31", "ns2.example.com": "127.0.0.32"}
         )
+        assert_that(backend.whitelisted_ranges).is_equal_to([
+            ipaddress.IPv4Network('10.0.0.0/8'),
+        ])
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
         assert_that(backend.soa).is_equal_to(
             "ns1.example.com hostmaster@example.com 99"
         )
 
-    def test_configure_with_env_blacklist_config(self):
+    def test_configure_with_env_lists_config(self):
+        os.environ["NIPIO_WHITELIST"] = "whitelist1=10.0.0.0/8"
         os.environ[
             "NIPIO_BLACKLIST"
         ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
-        backend = self._configure_backend(filename="backend_test_no_blacklist.conf")
+        backend = self._configure_backend(filename="backend_test_no_lists.conf")
+
+        assert_that(backend.whitelisted_ranges).is_equal_to([
+            ipaddress.IPv4Network('10.0.0.0/8'),
+        ])
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
 
-    def test_configure_with_config_missing_blacklists(self):
-        backend = self._configure_backend(filename="backend_test_no_blacklist.conf")
+    def test_configure_with_config_missing_lists(self):
+        backend = self._configure_backend(filename="backend_test_no_lists.conf")
 
+        assert_that(backend.whitelisted_ranges).is_empty()
         assert_that(backend.blacklisted_ips).is_empty()
 
     def _run_backend(self):
         backend = self._create_backend()
+        backend.run()
+
+    def _run_backend_without_whitelist(self):
+        backend = self._create_backend()
+        backend.whitelisted_ranges = []
         backend.run()
 
     def _send_commands(self, *commands):
@@ -548,7 +652,7 @@ class DynamicBackendTest(unittest.TestCase):
             calls.extend([call(response_item) for response_item in tab_separated])
 
         calls.extend(
-            [call("END"), call("\n"),]
+            [call("END"), call("\n"), ]
         )
 
         self.mock_sys.stdout.write.assert_has_calls(calls)
@@ -566,9 +670,16 @@ class DynamicBackendTest(unittest.TestCase):
         backend.ip_address = "127.0.0.33"
         backend.ttl = "200"
         backend.name_servers = collections.OrderedDict(
-            [("ns1.lcl.io", "127.0.0.34"), ("ns2.lcl.io", "127.0.0.35"),]
+            [("ns1.lcl.io", "127.0.0.34"), ("ns2.lcl.io", "127.0.0.35"), ]
         )
         backend.domain = "lcl.io"
+        backend.whitelisted_ranges = [
+            # This allows us to test that the blacklist works even when the IPs are
+            # part of whitelisted ranges
+            ipaddress.IPv4Network('127.0.0.0/8'),
+            # This range covers deadbeef
+            ipaddress.IPv4Network('222.173.190.239/32'),
+        ]
         backend.blacklisted_ips = ["127.0.0.2"]
         return backend
 
