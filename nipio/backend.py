@@ -18,6 +18,7 @@ import configparser
 import os
 import re
 import sys
+from ipaddress import IPv4Address, IPv4Network, AddressValueError
 
 
 def _is_debug():
@@ -77,8 +78,10 @@ class DynamicBackend(object):
     NIPIO_SOA_ID -- SOA serial number.
     NIPIO_SOA_HOSTMASTER -- SOA hostmaster email address.
     NIPIO_SOA_NS -- SOA name server.
-    NIPIO_NAMESERVERS -- A space-seperated list of domain=ip nameserver pairs.
-    NIPIO_BLACKLIST -- A space-seperated list of description=ip blacklisted pairs.
+    NIPIO_NAMESERVERS -- A space-separated list of domain=ip nameserver pairs.
+    NIPIO_WHITELIST -- A space-separated list of description=range pairs to whitelist.
+                       The range should be in CIDR format.
+    NIPIO_BLACKLIST -- A space-separated list of description=ip blacklisted pairs.
 
     Example:
     backend = DynamicBackend()
@@ -95,6 +98,7 @@ class DynamicBackend(object):
         self.ip_address = ''
         self.ttl = ''
         self.name_servers = {}
+        self.whitelisted_ranges = []
         self.blacklisted_ips = []
 
     def configure(self, config_filename: str = _get_default_config_file()) -> None:
@@ -125,6 +129,14 @@ class DynamicBackend(object):
             _get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers'))
         )
 
+        if 'NIPIO_WHITELIST' in os.environ or config.has_section("whitelist"):
+            for entry in _get_env_splitted(
+                'NIPIO_WHITELIST',
+                config.items("whitelist") if config.has_section("whitelist") else None,
+            ):
+                # Convert the given range to an IPv4Network
+                self.whitelisted_ranges.append(IPv4Network(entry[1]))
+
         if 'NIPIO_BLACKLIST' in os.environ or config.has_section("blacklist"):
             for entry in _get_env_splitted(
                 'NIPIO_BLACKLIST',
@@ -137,8 +149,9 @@ class DynamicBackend(object):
         _log(f'TTL: {self.ttl}')
         _log(f'SOA: {self.soa}')
         _log(f'IP address: {self.ip_address}')
-        _log(f'Domain: {self.domain}') 
-        _log(f"Blacklist: {self.blacklisted_ips}")
+        _log(f'Domain: {self.domain}')
+        _log(f"Whitelisted IP ranges: {[str(r) for r in self.whitelisted_ranges]}")
+        _log(f"Blacklisted IPs: {self.blacklisted_ips}")
 
     def run(self) -> None:
         """Run the pipe backend.
@@ -197,30 +210,26 @@ class DynamicBackend(object):
             self.handle_invalid_ip(qname)
             return
 
-        ip_address_parts = subparts[-4:]
+        # Calculate the IP address string from the extracts parts
+        ip_address = ".".join(subparts[-4:])
         if _is_debug():
-            _log(f'ip: {ip_address_parts}')
-        for part in ip_address_parts:
-            if re.match(r'^\d{1,3}$', part) is None:
-                if _is_debug():
-                    _log(f'{part} is not a number')
-                self.handle_invalid_ip(qname)
-                return
-            part_int = int(part)
-            if part_int < 0 or part_int > 255:
-                if _is_debug():
-                    _log(f'{part_int} is too big/small')
-                self.handle_invalid_ip(qname)
-                return
+            _log(f'extracted ip: {ip_address}')
 
-        ip_address = ".".join(ip_address_parts)
-        if ip_address in self.blacklisted_ips:
-            self.handle_blacklisted(ip_address)
+        # Try to convert the string to an IPv4Address object
+        # This will fail if the string is not a valid IP address
+        try:
+            ip_address = IPv4Address(ip_address)
+        except AddressValueError:
+            self.handle_invalid_ip(qname)
             return
 
-        _write('DATA', qname, 'IN', 'A', self.ttl, self.id, ip_address)
-        self.write_name_servers(qname)
-        _write('END')
+        # Check if the IP address is permitted before returning it
+        if self.is_permitted(ip_address):
+            _write('DATA', qname, 'IN', 'A', self.ttl, self.id, str(ip_address))
+            self.write_name_servers(qname)
+            _write('END')
+        else:
+            self.handle_rejected(ip_address)
 
     def handle_nameservers(self, qname: str) -> None:
         ip = self.name_servers[qname]
@@ -239,8 +248,17 @@ class DynamicBackend(object):
         _write('LOG', f'Unknown type: {qtype}, domain: {qname}')
         _write('END')
 
-    def handle_blacklisted(self, ip_address: str) -> None:
-        _write('LOG', f'Blacklisted: {ip_address}')
+    def is_permitted(self, ip_address: IPv4Address) -> bool:
+        """Tests if the IP address is permitted for this DNS server."""
+        # First, check that the IP address is in the whitelisted ranges, if given
+        if self.whitelisted_ranges:
+            if not any(ip_address in ip_range for ip_range in self.whitelisted_ranges):
+                return False
+        # Once we know that the IP address is whitelisted, check that it is not blacklisted
+        return str(ip_address) not in self.blacklisted_ips
+
+    def handle_rejected(self, ip_address: IPv4Address) -> None:
+        _write('LOG', f'Rejected IP address: {ip_address}')
         _write('END')
 
     def handle_invalid_ip(self, ip_address: str) -> None:
