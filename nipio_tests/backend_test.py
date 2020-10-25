@@ -70,9 +70,11 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
+            ["DATA", "0", "1", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain.127.0.0.1.lcl.io",
                 "IN",
                 "NS",
@@ -82,6 +84,8 @@ class DynamicBackendTest(unittest.TestCase):
             ],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain.127.0.0.1.lcl.io",
                 "IN",
                 "NS",
@@ -99,9 +103,11 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
+            ["DATA", "0", "1", "subdomain.127.0.0.1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain.127.0.0.1.lcl.io",
                 "IN",
                 "NS",
@@ -111,6 +117,8 @@ class DynamicBackendTest(unittest.TestCase):
             ],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain.127.0.0.1.lcl.io",
                 "IN",
                 "NS",
@@ -128,9 +136,11 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
+            ["DATA", "0", "1", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain-127-0-0-1.lcl.io",
                 "IN",
                 "NS",
@@ -140,6 +150,8 @@ class DynamicBackendTest(unittest.TestCase):
             ],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain-127-0-0-1.lcl.io",
                 "IN",
                 "NS",
@@ -157,9 +169,11 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
+            ["DATA", "0", "1", "subdomain-127-0-0-1.lcl.io", "IN", "A", "200", "22", "127.0.0.1"],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain-127-0-0-1.lcl.io",
                 "IN",
                 "NS",
@@ -169,6 +183,8 @@ class DynamicBackendTest(unittest.TestCase):
             ],
             [
                 "DATA",
+                "0",
+                "1",
                 "subdomain-127-0-0-1.lcl.io",
                 "IN",
                 "NS",
@@ -184,9 +200,9 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "user-deadbeef.lcl.io", "IN", "A", "200", "22", "222.173.190.239"],
-            ["DATA", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["DATA", "0", "1", "user-deadbeef.lcl.io", "IN", "A", "200", "22", "222.173.190.239"],
+            ["DATA", "0", "1", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "0", "1", "user-deadbeef.lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
         )
 
     def test_backend_responds_to_long_hexstring_with_invalid_response(self):
@@ -328,9 +344,9 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["DATA", "0", "1", "lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
+            ["DATA", "0", "1", "lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "0", "1", "lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
         )
 
     def test_backend_responds_to_self_domain_to_ANY_request(self):
@@ -339,9 +355,9 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
-            ["DATA", "lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
+            ["DATA", "0", "1", "lcl.io", "IN", "A", "200", "22", "127.0.0.33"],
+            ["DATA", "0", "1", "lcl.io", "IN", "NS", "200", "22", "ns1.lcl.io"],
+            ["DATA", "0", "1", "lcl.io", "IN", "NS", "200", "22", "ns2.lcl.io"],
         )
 
     def test_backend_responds_to_name_servers_A_request_with_valid_ip(self):
@@ -350,7 +366,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "ns1.lcl.io", "IN", "A", "200", "22", "127.0.0.34"],
+            ["DATA", "0", "1", "ns1.lcl.io", "IN", "A", "200", "22", "127.0.0.34"],
         )
 
     def test_backend_responds_to_name_servers_ANY_request_with_valid_ip(self):
@@ -359,7 +375,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "ns2.lcl.io", "IN", "A", "200", "22", "127.0.0.35"],
+            ["DATA", "0", "1", "ns2.lcl.io", "IN", "A", "200", "22", "127.0.0.35"],
         )
 
     def test_backend_responds_to_SOA_request_for_self(self):
@@ -368,7 +384,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
+            ["DATA", "0", "1", "lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
     def test_backend_responds_to_SOA_request_for_valid_ip(self):
@@ -379,7 +395,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.0.1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
+            ["DATA", "0", "1", "subdomain.127.0.0.1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
     def test_backend_responds_to_SOA_request_for_invalid_ip(self):
@@ -390,7 +406,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.127.0.1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
+            ["DATA", "0", "1", "subdomain.127.0.1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
     def test_backend_responds_to_SOA_request_for_no_ip(self):
@@ -399,7 +415,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "subdomain.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
+            ["DATA", "0", "1", "subdomain.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
     def test_backend_responds_to_SOA_request_for_nameserver(self):
@@ -408,7 +424,7 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "ns1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
+            ["DATA", "0", "1", "ns1.lcl.io", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
     def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(
@@ -439,7 +455,7 @@ class DynamicBackendTest(unittest.TestCase):
         calls = [
             call("OK"),
             call("\t"),
-            call("We are good"),
+            call("nip.io backend - We are good"),
             call("\n"),
             call("FAIL"),
             call("\n"),
@@ -507,7 +523,7 @@ class DynamicBackendTest(unittest.TestCase):
         backend.run()
 
     def _send_commands(self, *commands):
-        commands_to_send = ["HELO\t1\n"]
+        commands_to_send = ["HELO\t5\n"]
 
         for command in commands:
             commands_to_send.append("\t".join(command) + "\n")
@@ -520,7 +536,7 @@ class DynamicBackendTest(unittest.TestCase):
         calls = [
             call("OK"),
             call("\t"),
-            call("We are good"),
+            call("nip.io backend - We are good"),
             call("\n"),
         ]
 
