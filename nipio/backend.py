@@ -71,6 +71,18 @@ def _get_default_config_file() -> str:
 class DynamicBackend(object):
     """PowerDNS dynamic pipe backend.
 
+    Attributes:
+    id
+    soa
+    domain
+    ip_address
+    ttl
+    name_servers
+    whitelisted_ranges
+    blacklisted_ips
+    bits
+    auth
+
     Environment variables:
     NIPIO_DOMAIN -- NIP.IO main domain.
     NIPIO_TTL -- Default TTL for NIP.IO backend.
@@ -82,6 +94,8 @@ class DynamicBackend(object):
     NIPIO_WHITELIST -- A space-separated list of description=range pairs to whitelist.
                        The range should be in CIDR format.
     NIPIO_BLACKLIST -- A space-separated list of description=ip blacklisted pairs.
+    NIPIO_AUTH -- Indicates whether this response is authoritative, this is for DNSSEC.
+    NIPIO_BITS -- Scopebits indicates how many bits from the subnet provided in the question.
 
     Example:
     backend = DynamicBackend()
@@ -130,8 +144,8 @@ class DynamicBackend(object):
         self.name_servers = dict(
             _get_env_splitted('NIPIO_NAMESERVERS', config.items('nameservers'))
         )
-        self.bits = config.get('bits', '0')
-        self.auth = config.get('auth', '1')
+        self.bits = os.getenv('NIPIO_BITS', config.get('main', 'bits'))
+        self.auth = os.getenv('NIPIO_AUTH', config.get('main', 'auth'))
 
         if 'NIPIO_WHITELIST' in os.environ or config.has_section("whitelist"):
             for entry in _get_env_splitted(
