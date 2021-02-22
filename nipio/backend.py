@@ -72,16 +72,16 @@ class DynamicBackend(object):
     """PowerDNS dynamic pipe backend.
 
     Attributes:
-    id
-    soa
-    domain
-    ip_address
-    ttl
-    name_servers
-    whitelisted_ranges
-    blacklisted_ips
-    bits
-    auth
+        id
+        soa
+        domain
+        ip_address
+        ttl
+        name_servers
+        whitelisted_ranges
+        blacklisted_ips
+        bits
+        auth
 
     Environment variables:
     NIPIO_DOMAIN -- NIP.IO main domain.
@@ -98,9 +98,9 @@ class DynamicBackend(object):
     NIPIO_BITS -- Scopebits indicates how many bits from the subnet provided in the question.
 
     Example:
-    backend = DynamicBackend()
-    backend.configure()
-    backend.run()
+        backend = DynamicBackend()
+        backend.configure()
+        backend.run()
 
     https://doc.powerdns.com/authoritative/backends/pipe.html
     """
