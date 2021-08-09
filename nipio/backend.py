@@ -68,7 +68,7 @@ def _get_default_config_file() -> str:
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'backend.conf')
 
 
-class DynamicBackend(object):
+class DynamicBackend:
     """PowerDNS dynamic pipe backend.
 
     Attributes:
