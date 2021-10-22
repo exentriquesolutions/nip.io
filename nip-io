@@ -1,0 +1,83 @@
+#!/usr/bin/python3
+
+import ipaddress
+import sys
+import socket
+
+# SO one :)
+# http://stackoverflow.com/a/1181922
+
+def base36encode(number):
+    """
+    Base 36 encoder function
+    """
+    if not isinstance(number, (int)):
+        raise TypeError('number must be an integer')
+    if number < 0:
+        raise ValueError('number must be positive')
+
+    alphabet, base36 = ['0123456789abcdefghijklmnopqrstuvwxyz', '']
+
+    while number:
+        number, i = divmod(number, 36)
+        base36 = alphabet[i] + base36
+
+    return base36 or alphabet[0]
+
+def base36decode(number):
+    """
+    base 36 decode...
+    """
+    return int(number, 36)
+
+if len(sys.argv) < 2:
+    sys.exit('Usage: %s <IP address> <optional app name>' % sys.argv[0])
+if  len(sys.argv) > 2:
+    app_name = "{}-".format(sys.argv[2])
+else:
+    app_name = ""
+IP = sys.argv[1].split('.')
+if len(IP) < 4:
+    sys.exit('<IP address> not in correct form')
+
+
+B36NAME = base36encode(int(ipaddress.ip_address(
+    u'{}.{}.{}.{}'.format(IP[3], IP[2], IP[1], IP[0]))))
+
+
+def ipashex(ip):
+    return socket.inet_aton(ip).hex()
+    
+
+
+
+print("""
+IP {ip}
+==================
+NIP_plain     http://{app_name_lower}{ip}.nip.io
+NIP_plain_SSL https://{app_name_lower}{ip}.nip.io
+NIP_DASH      http://{app_name_lower}{ip_dash}.nip.io
+NIP_DASH_SSL  https://{app_name_lower}{ip_dash}.nip.io
+##### upper case hex
+NIP_HEX       http://{app_name_upper}{upper}.nip.io
+NIP_HEX_SSL   https://{app_name_upper}{upper}.nip.io
+##### lower case hex
+NIP_HEX       http://{app_name_lower}{lower}.nip.io
+NIP_SSL       https://{app_name_lower}{lower}.nip.io
+#### upper case dash
+NIP_DASH      http://{app_name_upper}{ip_dash}.nip.io
+NIP_DASH_SSL  https://{app_name_upper}{ip_dash}.nip.io
+#### lower case dash
+NIP_DASH      http://{app_name_lower}{ip_dash}.nip.io
+NIP_DASH_SSL  https://{app_name_lower}{ip_dash}.nip.io
+
+
+""".format(
+        ip=sys.argv[1],
+        ip_dash=sys.argv[1].replace('.','-'),
+        upper=ipashex(sys.argv[1]).upper(),
+        lower=ipashex(sys.argv[1]).lower(),
+        app_name_upper=app_name.upper(),
+        app_name_lower=app_name.lower(),
+    )
+)
