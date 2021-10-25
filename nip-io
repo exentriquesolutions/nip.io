@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""
+nip.io URL generation script
+
+This script given an IP address will give correct representation of URLs you could
+use for the nip.io resolver below you can find example execution of this script.
+
+Example:
+
+    $ ./nip-io 10.22.33.44 mygreatapp
+    
+    IP 10.22.33.44
+    ==================
+    NIP_plain     http://mygreatapp-10.22.33.44.nip.io
+    NIP_plain_TLS https://mygreatapp-10.22.33.44.nip.io
+    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
+    ##### upper case hex
+    NIP_HEX       http://MYGREATAPP-0A16212C.nip.io
+    NIP_HEX_TLS   https://MYGREATAPP-0A16212C.nip.io
+    ##### lower case hex
+    NIP_HEX       http://mygreatapp-0a16212c.nip.io
+    NIP_TLS       https://mygreatapp-0a16212c.nip.io
+    #### upper case dash
+    NIP_DASH      http://MYGREATAPP-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://MYGREATAPP-10-22-33-44.nip.io
+    #### lower case dash
+    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
+    #### NOT implemented at this time on nip.io
+    #### does not work, but will look to change that :)
+    NIP_B36       http://mygreatapp-c8slxm.nip.io
+    NIP_B36_TLS   https://mygreatapp-c8slxm.nip.io
+"""
+
+import ipaddress
+import socket
+import sys
+
+# SO one :)
+# http://stackoverflow.com/a/1181922
+
+
+def base36encode(number: int) -> str:
+    """
+    Base 36 encoder function
+    """
+    if not isinstance(number, (int)):
+        raise TypeError("number must be an integer")
+    if number < 0:
+        raise ValueError("number must be positive")
+
+    alphabet, base36 = ["0123456789abcdefghijklmnopqrstuvwxyz", ""]
+
+    while number:
+        number, i = divmod(number, 36)
+        base36 = alphabet[i] + base36
+
+    return base36 or alphabet[0]
+
+
+def base36decode(number: str) -> int:
+    """
+    base 36 decode...
+    """
+    return int(number, 36)
+
+
+if len(sys.argv) < 2:
+    sys.exit(f"Usage: {sys.argv[0]} <IP address> <optional app name>")
+if len(sys.argv) > 2:
+    app_name = f"{sys.argv[2]}-"
+else:
+    app_name = ""
+
+IP = sys.argv[1].split(".")
+if len(IP) < 4:
+    sys.exit("<IP address> not in correct form")
+
+
+B36NAME = base36encode(int(ipaddress.ip_address(f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}")))
+
+
+def ip_as_hex(ip: str) -> str:
+    return socket.inet_aton(ip).hex()
+
+
+ip = sys.argv[1]
+ip_dash = sys.argv[1].replace(".", "-")
+ip_hex = ip_as_hex(sys.argv[1])
+
+output = f"""
+IP {ip}
+==================
+NIP_plain     http://{app_name.lower()}{ip}.nip.io
+NIP_plain_TLS https://{app_name.lower()}{ip}.nip.io
+NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
+##### upper case hex
+NIP_HEX       http://{app_name.upper()}{ip_hex.upper()}.nip.io
+NIP_HEX_TLS   https://{app_name.upper()}{ip_hex.upper()}.nip.io
+##### lower case hex
+NIP_HEX       http://{app_name.lower()}{ip_hex.lower()}.nip.io
+NIP_TLS       https://{app_name.lower()}{ip_hex.lower()}.nip.io
+#### upper case dash
+NIP_DASH      http://{app_name.upper()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.upper()}{ip_dash}.nip.io
+#### lower case dash
+NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
+#### NOT implemented at this time on nip.io
+#### does not work, but will look to change that :)
+NIP_B36       http://{app_name.lower()}{B36NAME}.nip.io
+NIP_B36_TLS   https://{app_name.lower()}{B36NAME}.nip.io
+"""
+print(output)
