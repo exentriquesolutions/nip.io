@@ -8,7 +8,7 @@ import sys
 # http://stackoverflow.com/a/1181922
 
 
-def base36encode(number):
+def base36encode(number) -> str:
     """
     Base 36 encoder function
     """
@@ -26,7 +26,7 @@ def base36encode(number):
     return base36 or alphabet[0]
 
 
-def base36decode(number):
+def base36decode(number) -> int:
     """
     base 36 decode...
     """
@@ -47,11 +47,11 @@ if len(IP) < 4:
 
 B36NAME = base36encode(
     int(ipaddress.ip_address(
-        u"{}.{}.{}.{}".format(IP[3], IP[2], IP[1], IP[0])))
+        f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}"))
 )
 
 
-def ip_as_hex(ip):
+def ip_as_hex(ip) -> str:
     return socket.inet_aton(ip).hex()
 
 
@@ -59,29 +59,28 @@ ip = sys.argv[1]
 ip_dash = sys.argv[1].replace(".", "-")
 ip_hex = ip_as_hex(sys.argv[1])
 
-output = (f"""
+output = f"""
 IP {ip}
 ==================
 NIP_plain     http://{app_name.lower()}{ip}.nip.io
-NIP_plain_SSL https://{app_name.lower()}{ip}.nip.io
+NIP_plain_TLS https://{app_name.lower()}{ip}.nip.io
 NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
-NIP_DASH_SSL  https://{app_name.lower()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
 ##### upper case hex
 NIP_HEX       http://{app_name.upper()}{ip_hex.upper()}.nip.io
-NIP_HEX_SSL   https://{app_name.upper()}{ip_hex.upper()}.nip.io
+NIP_HEX_TLS   https://{app_name.upper()}{ip_hex.upper()}.nip.io
 ##### lower case hex
 NIP_HEX       http://{app_name.lower()}{ip_hex.lower()}.nip.io
-NIP_SSL       https://{app_name.lower()}{ip_hex.lower()}.nip.io
+NIP_TLS       https://{app_name.lower()}{ip_hex.lower()}.nip.io
 #### upper case dash
 NIP_DASH      http://{app_name.upper()}{ip_dash}.nip.io
-NIP_DASH_SSL  https://{app_name.upper()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.upper()}{ip_dash}.nip.io
 #### lower case dash
 NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
-NIP_DASH_SSL  https://{app_name.lower()}{ip_dash}.nip.io
+NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
 #### NOT implemented at this time on nip.io
 #### does not work, but will look to change that :)
 NIP_B36       http://{app_name.lower()}{B36NAME}.nip.io
-NIP_B36_SSL   https://{app_name.lower()}{B36NAME}.nip.io
+NIP_B36_TLS   https://{app_name.lower()}{B36NAME}.nip.io
 """
-          )
 print(output)
