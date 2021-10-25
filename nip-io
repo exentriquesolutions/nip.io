@@ -1,34 +1,37 @@
 #!/usr/bin/env python3
-# This script given ip address will give 
-# correct representation of URLs you could
-# use for nip.io resolver
-# bellow you can find example execution of this script
-#
-# shell> ./nip-io  10.22.33.44 mygreatapp
-#
-# IP 10.22.33.44
-# ==================
-# NIP_plain     http://mygreatapp-10.22.33.44.nip.io
-# NIP_plain_TLS https://mygreatapp-10.22.33.44.nip.io
-# NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
-# NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
-# ##### upper case hex
-# NIP_HEX       http://MYGREATAPP-0A16212C.nip.io
-# NIP_HEX_TLS   https://MYGREATAPP-0A16212C.nip.io
-# ##### lower case hex
-# NIP_HEX       http://mygreatapp-0a16212c.nip.io
-# NIP_TLS       https://mygreatapp-0a16212c.nip.io
-# #### upper case dash
-# NIP_DASH      http://MYGREATAPP-10-22-33-44.nip.io
-# NIP_DASH_TLS  https://MYGREATAPP-10-22-33-44.nip.io
-# #### lower case dash
-# NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
-# NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
-# #### NOT implemented at this time on nip.io
-# #### does not work, but will look to change that :)
-# NIP_B36       http://mygreatapp-c8slxm.nip.io
-# NIP_B36_TLS   https://mygreatapp-c8slxm.nip.io
+"""
+nip.io URL generation script
 
+This script given an IP address will give correct representation of URLs you could
+use for the nip.io resolver below you can find example execution of this script.
+
+Example:
+
+    $ ./nip-io 10.22.33.44 mygreatapp
+    
+    IP 10.22.33.44
+    ==================
+    NIP_plain     http://mygreatapp-10.22.33.44.nip.io
+    NIP_plain_TLS https://mygreatapp-10.22.33.44.nip.io
+    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
+    ##### upper case hex
+    NIP_HEX       http://MYGREATAPP-0A16212C.nip.io
+    NIP_HEX_TLS   https://MYGREATAPP-0A16212C.nip.io
+    ##### lower case hex
+    NIP_HEX       http://mygreatapp-0a16212c.nip.io
+    NIP_TLS       https://mygreatapp-0a16212c.nip.io
+    #### upper case dash
+    NIP_DASH      http://MYGREATAPP-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://MYGREATAPP-10-22-33-44.nip.io
+    #### lower case dash
+    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
+    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
+    #### NOT implemented at this time on nip.io
+    #### does not work, but will look to change that :)
+    NIP_B36       http://mygreatapp-c8slxm.nip.io
+    NIP_B36_TLS   https://mygreatapp-c8slxm.nip.io
+"""
 
 import ipaddress
 import socket
