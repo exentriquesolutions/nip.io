@@ -67,11 +67,12 @@ if len(sys.argv) > 2:
 else:
     app_name = ""
 
-IP = sys.argv[1].split(".")
-if len(IP) < 4:
-    sys.exit("The IP address is not properly formatted")
+try:
+    ip_addr = ipaddress.ip_address(sys.argv[1])
+except ValueError as err:
+    sys.exit(err)
 
-b36_name = base36encode(int(ipaddress.ip_address(f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}")))
+b36_name = base36encode(int(ip_addr))
 
 
 def ip_as_hex(ip_string: str) -> str:
