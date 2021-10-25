@@ -26,7 +26,7 @@ def base36encode(number: int) -> str:
     return base36 or alphabet[0]
 
 
-def base36decode(number) -> int:
+def base36decode(number: str) -> int:
     """
     base 36 decode...
     """
@@ -45,10 +45,7 @@ if len(IP) < 4:
     sys.exit("<IP address> not in correct form")
 
 
-B36NAME = base36encode(
-    int(ipaddress.ip_address(
-        f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}"))
-)
+B36NAME = base36encode(int(ipaddress.ip_address(f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}")))
 
 
 def ip_as_hex(ip: str) -> str:
