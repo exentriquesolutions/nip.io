@@ -15,16 +15,16 @@ Example:
     NIP_plain_TLS https://mygreatapp-10.22.33.44.nip.io
     NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
     NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
-    ##### upper case hex
+    ##### Uppercase hex
     NIP_HEX       http://MYGREATAPP-0A16212C.nip.io
     NIP_HEX_TLS   https://MYGREATAPP-0A16212C.nip.io
-    ##### lower case hex
+    ##### Lowercase hex
     NIP_HEX       http://mygreatapp-0a16212c.nip.io
     NIP_TLS       https://mygreatapp-0a16212c.nip.io
-    #### upper case dash
+    #### Uppercase dash
     NIP_DASH      http://MYGREATAPP-10-22-33-44.nip.io
     NIP_DASH_TLS  https://MYGREATAPP-10-22-33-44.nip.io
-    #### lower case dash
+    #### Lowercase dash
     NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
     NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
     #### NOT implemented at this time on nip.io
@@ -37,20 +37,16 @@ import ipaddress
 import socket
 import sys
 
-# SO one :)
-# http://stackoverflow.com/a/1181922
-
 
 def base36encode(number: int) -> str:
-    """
-    Base 36 encoder function
-    """
-    if not isinstance(number, (int)):
+    """Encode the int using Base36 and return the encoded string."""
+    if not isinstance(number, int):
         raise TypeError("number must be an integer")
     if number < 0:
         raise ValueError("number must be positive")
 
-    alphabet, base36 = ["0123456789abcdefghijklmnopqrstuvwxyz", ""]
+    alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
+    base36 = ""
 
     while number:
         number, i = divmod(number, 36)
@@ -60,9 +56,7 @@ def base36encode(number: int) -> str:
 
 
 def base36decode(number: str) -> int:
-    """
-    base 36 decode...
-    """
+    """Decode the Base36 encoded string and return the decoded int."""
     return int(number, 36)
 
 
@@ -75,14 +69,14 @@ else:
 
 IP = sys.argv[1].split(".")
 if len(IP) < 4:
-    sys.exit("<IP address> not in correct form")
+    sys.exit("The IP address is not properly formatted")
+
+b36_name = base36encode(int(ipaddress.ip_address(f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}")))
 
 
-B36NAME = base36encode(int(ipaddress.ip_address(f"{IP[3]}.{IP[2]}.{IP[1]}.{IP[0]}")))
-
-
-def ip_as_hex(ip: str) -> str:
-    return socket.inet_aton(ip).hex()
+def ip_as_hex(ip_string: str) -> str:
+    """Return a hexadecimal representation of the IP address."""
+    return socket.inet_aton(ip_string).hex()
 
 
 ip = sys.argv[1]
@@ -96,21 +90,21 @@ NIP_plain     http://{app_name.lower()}{ip}.nip.io
 NIP_plain_TLS https://{app_name.lower()}{ip}.nip.io
 NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
 NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
-##### upper case hex
+##### Uppercase hex
 NIP_HEX       http://{app_name.upper()}{ip_hex.upper()}.nip.io
 NIP_HEX_TLS   https://{app_name.upper()}{ip_hex.upper()}.nip.io
-##### lower case hex
+##### Lowercase hex
 NIP_HEX       http://{app_name.lower()}{ip_hex.lower()}.nip.io
 NIP_TLS       https://{app_name.lower()}{ip_hex.lower()}.nip.io
-#### upper case dash
+#### Uppercase dash
 NIP_DASH      http://{app_name.upper()}{ip_dash}.nip.io
 NIP_DASH_TLS  https://{app_name.upper()}{ip_dash}.nip.io
-#### lower case dash
+#### Lowercase dash
 NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
 NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
 #### NOT implemented at this time on nip.io
 #### does not work, but will look to change that :)
-NIP_B36       http://{app_name.lower()}{B36NAME}.nip.io
-NIP_B36_TLS   https://{app_name.lower()}{B36NAME}.nip.io
+NIP_B36       http://{app_name.lower()}{b36_name}.nip.io
+NIP_B36_TLS   https://{app_name.lower()}{b36_name}.nip.io
 """
 print(output)
