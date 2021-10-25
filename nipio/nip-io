@@ -3,7 +3,7 @@
 nip.io URL generation script
 
 This script given an IP address will give correct representation of URLs you could
-use for the nip.io resolver below you can find example execution of this script.
+use for the nip.io DNS resolver.
 
 Example:
 
@@ -13,22 +13,22 @@ Example:
     ==================
     NIP_plain     http://mygreatapp-10.22.33.44.nip.io
     NIP_plain_TLS https://mygreatapp-10.22.33.44.nip.io
-    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
-    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
-    ##### Uppercase hex
-    NIP_HEX       http://MYGREATAPP-0A16212C.nip.io
-    NIP_HEX_TLS   https://MYGREATAPP-0A16212C.nip.io
-    ##### Lowercase hex
-    NIP_HEX       http://mygreatapp-0a16212c.nip.io
-    NIP_TLS       https://mygreatapp-0a16212c.nip.io
-    #### Uppercase dash
-    NIP_DASH      http://MYGREATAPP-10-22-33-44.nip.io
-    NIP_DASH_TLS  https://MYGREATAPP-10-22-33-44.nip.io
-    #### Lowercase dash
-    NIP_DASH      http://mygreatapp-10-22-33-44.nip.io
-    NIP_DASH_TLS  https://mygreatapp-10-22-33-44.nip.io
-    #### NOT implemented at this time on nip.io
-    #### does not work, but will look to change that :)
+    NIP_dash      http://mygreatapp-10-22-33-44.nip.io
+    NIP_dash_TLS  https://mygreatapp-10-22-33-44.nip.io
+    # Uppercase hex
+    NIP_hex       http://MYGREATAPP-0A16212C.nip.io
+    NIP_hex_TLS   https://MYGREATAPP-0A16212C.nip.io
+    # Lowercase hex
+    NIP_hex       http://mygreatapp-0a16212c.nip.io
+    NIP_hex_TLS   https://mygreatapp-0a16212c.nip.io
+    # Uppercase dash
+    NIP_dash      http://MYGREATAPP-10-22-33-44.nip.io
+    NIP_dash_TLS  https://MYGREATAPP-10-22-33-44.nip.io
+    # Lowercase dash
+    NIP_dash      http://mygreatapp-10-22-33-44.nip.io
+    NIP_dash_TLS  https://mygreatapp-10-22-33-44.nip.io
+    # NOT implemented at this time on nip.io
+    # does not work, but will look to change that :)
     NIP_B36       http://mygreatapp-c8slxm.nip.io
     NIP_B36_TLS   https://mygreatapp-c8slxm.nip.io
 """
@@ -88,23 +88,23 @@ IP {ip}
 ==================
 NIP_plain     http://{app_name.lower()}{ip}.nip.io
 NIP_plain_TLS https://{app_name.lower()}{ip}.nip.io
-NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
-NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
-##### Uppercase hex
-NIP_HEX       http://{app_name.upper()}{ip_hex.upper()}.nip.io
-NIP_HEX_TLS   https://{app_name.upper()}{ip_hex.upper()}.nip.io
-##### Lowercase hex
-NIP_HEX       http://{app_name.lower()}{ip_hex.lower()}.nip.io
-NIP_TLS       https://{app_name.lower()}{ip_hex.lower()}.nip.io
-#### Uppercase dash
-NIP_DASH      http://{app_name.upper()}{ip_dash}.nip.io
-NIP_DASH_TLS  https://{app_name.upper()}{ip_dash}.nip.io
-#### Lowercase dash
-NIP_DASH      http://{app_name.lower()}{ip_dash}.nip.io
-NIP_DASH_TLS  https://{app_name.lower()}{ip_dash}.nip.io
-#### NOT implemented at this time on nip.io
-#### does not work, but will look to change that :)
-NIP_B36       http://{app_name.lower()}{b36_name}.nip.io
-NIP_B36_TLS   https://{app_name.lower()}{b36_name}.nip.io
+NIP_dash      http://{app_name.lower()}{ip_dash}.nip.io
+NIP_dash_TLS  https://{app_name.lower()}{ip_dash}.nip.io
+# Uppercase hex
+NIP_hex       http://{app_name.upper()}{ip_hex.upper()}.nip.io
+NIP_hex_TLS   https://{app_name.upper()}{ip_hex.upper()}.nip.io
+# Lowercase hex
+NIP_hex       http://{app_name.lower()}{ip_hex.lower()}.nip.io
+NIP_hex_TLS   https://{app_name.lower()}{ip_hex.lower()}.nip.io
+# Uppercase dash
+NIP_dash      http://{app_name.upper()}{ip_dash}.nip.io
+NIP_dash_TLS  https://{app_name.upper()}{ip_dash}.nip.io
+# Lowercase dash
+NIP_dash      http://{app_name.lower()}{ip_dash}.nip.io
+NIP_dash_TLS  https://{app_name.lower()}{ip_dash}.nip.io
 """
+# NOT implemented at this time on nip.io
+# does not work, but will look to change that :)
+# NIP_B36       http://{app_name.lower()}{b36_name}.nip.io
+# NIP_B36_TLS   https://{app_name.lower()}{b36_name}.nip.io
 print(output)
