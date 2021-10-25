@@ -8,7 +8,7 @@ import sys
 # http://stackoverflow.com/a/1181922
 
 
-def base36encode(number) -> str:
+def base36encode(number: int) -> str:
     """
     Base 36 encoder function
     """
@@ -51,7 +51,7 @@ B36NAME = base36encode(
 )
 
 
-def ip_as_hex(ip) -> str:
+def ip_as_hex(ip: str) -> str:
     return socket.inet_aton(ip).hex()
 
 
