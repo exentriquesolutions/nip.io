@@ -30,6 +30,14 @@ environment variables override those:
 
 `NIPIO_SOA_NS`: SOA name server.
 
+`NIPIO_SOA_REFRESH`: SOA refresh.
+
+`NIPIO_SOA_RETRY`: SOA retry.
+
+`NIPIO_SOA_EXPIRY`: SOA expiry.
+
+`NIPIO_SOA_MINIMUM_TTL`: SOA minimum time-to-live (TTL).
+
 `NIPIO_NAMESERVERS`: A space-separated list of domain=ip nameserver pairs. Example: `ns1.nip.io=127.0.0.1 ns2.nip.io=127.0.0.1`.
 
 `NIPIO_WHITELIST`: A space-separated list of description=range pairs for whitelisted ranges in CIDR format.
