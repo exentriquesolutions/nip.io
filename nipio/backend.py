@@ -150,7 +150,7 @@ class DynamicBackend:
         if 'NIPIO_WHITELIST' in os.environ or config.has_section("whitelist"):
             for entry in _get_env_splitted(
                     'NIPIO_WHITELIST',
-                    config.items("whitelist") if config.has_section("whitelist") else None,
+                    config.items("whitelist") if config.has_section("whitelist") else [],
             ):
                 # Convert the given range to an IPv4Network
                 self.whitelisted_ranges.append(IPv4Network(entry[1]))
@@ -158,7 +158,7 @@ class DynamicBackend:
         if 'NIPIO_BLACKLIST' in os.environ or config.has_section("blacklist"):
             for entry in _get_env_splitted(
                     'NIPIO_BLACKLIST',
-                    config.items("blacklist") if config.has_section("blacklist") else None,
+                    config.items("blacklist") if config.has_section("blacklist") else [],
             ):
                 self.blacklisted_ips.append(entry[1])
 
@@ -255,7 +255,7 @@ class DynamicBackend:
 
         self.handle_resolved(ip_address, qname)
 
-    def handle_resolved(self, address: IPv4Address, qname: str):
+    def handle_resolved(self, address: IPv4Address, qname: str) -> None:
         _write('DATA', self.bits, self.auth, qname, 'IN', 'A', self.ttl, self.id, str(address))
         self.write_name_servers(qname)
         _write('END')
