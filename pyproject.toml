@@ -8,13 +8,13 @@ authors = ["rs <rs@midearth.co.uk>"]
 python = "^3.6.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 black = "^22.6.0"
 mypy = "^0.971"
 flake8 = "^5.0.4"
 assertpy = "^1.1"
 mock = "^4.0.3"
 types-mock = "^4.0.15"
+pytest = "^7.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
