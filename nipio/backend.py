@@ -28,7 +28,7 @@ def _is_debug() -> bool:
 
 def _get_env_splitted(
     key: str,
-    default: List[Tuple[str, str]] = None,
+    default: Union[List[Tuple[str, str]], None] = None,
     linesep: str = " ",
     pairsep: str = "=",
 ) -> Union[Generator[List[str], Any, None], Any]:
