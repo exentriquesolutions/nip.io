@@ -22,23 +22,23 @@ from ipaddress import IPv4Address, IPv4Network, AddressValueError
 from typing import Dict, List
 
 
-def _is_debug():
+def _is_debug() -> bool:
     return False
 
 
-def _get_env_splitted(key, default=None, linesep=" ", pairsep="="):
-    return (
-        (line.split(pairsep) for line in os.getenv(key).split(linesep))
-        if os.getenv(key)
-        else default
-    )
+def _get_env_splitted(key: str, default=None, linesep=" ", pairsep="="):
+    environment_value = os.getenv(key)
+    if environment_value:
+        return (line.split(pairsep) for line in environment_value.split(linesep))
+    else:
+        return default
 
 
-def _log(msg):
+def _log(msg: str):
     sys.stderr.write("backend (%s): %s\n" % (os.getpid(), msg))
 
 
-def _write(*args):
+def _write(*args: str):
     args_len = len(args)
     c = 0
     for arg in args:
@@ -56,7 +56,7 @@ def _write(*args):
     sys.stdout.flush()
 
 
-def _get_next():
+def _get_next() -> List[str]:
     if _is_debug():
         _log("reading now")
     line = sys.stdin.readline()
@@ -333,7 +333,7 @@ class DynamicBackend:
         _write("LOG", f"Invalid IP address: {ip_address}")
         _write("END")
 
-    def _split_subdomain(self, subdomain):
+    def _split_subdomain(self, subdomain: str):
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
             s = match.group(1)
