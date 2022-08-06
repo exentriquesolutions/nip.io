@@ -2,13 +2,13 @@
 """
 nip.io URL generation script
 
-This script given an IP address will give correct representation of URLs you could
-use for the nip.io DNS resolver.
+This script given an IP address will give correct representation of URLs you
+could use for the nip.io DNS resolver.
 
 Example:
 
     $ ./nipio 10.22.33.44 mygreatapp
-    
+
     IP 10.22.33.44
     ==================
     NIP_plain     http://mygreatapp-10.22.33.44.nip.io

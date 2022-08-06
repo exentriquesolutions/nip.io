@@ -1,6 +1,6 @@
 # NIP.IO
 
-[![Build Status](https://travis-ci.org/exentriquesolutions/nip.io.svg?branch=master)](https://travis-ci.org/exentriquesolutions/nip.io)
+![Build Status](https://github.com/exentriquesolutions/nip.io/actions/workflows/ci.yaml/badge.svg)
 
 Dead simple wildcard DNS for any IP Address.
 

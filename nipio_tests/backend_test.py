@@ -89,7 +89,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend_without_whitelist()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.10.0.10.1.nip.io.test", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "10.0.10.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -122,7 +132,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend_without_whitelist()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.10.0.10.1.nip.io.test", "IN", "A", "200", "22", "10.0.10.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "10.0.10.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -155,7 +175,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.127.0.0.1.nip.io.test", "IN", "A", "200", "22", "127.0.0.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.0.1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -188,7 +218,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.127.0.0.1.nip.io.test", "IN", "A", "200", "22", "127.0.0.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.0.1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -221,7 +261,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain-127-0-0-1.nip.io.test", "IN", "A", "200", "22", "127.0.0.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain-127-0-0-1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -254,7 +304,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain-127-0-0-1.nip.io.test", "IN", "A", "200", "22", "127.0.0.1"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain-127-0-0-1.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "127.0.0.1",
+            ],
             [
                 "DATA",
                 "0",
@@ -280,18 +340,52 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_A_request_with_valid_ip_hexstring(self):
-        self._send_commands(["Q", "user-deadbeef.nip.io.test", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "user-deadbeef.nip.io.test", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "user-deadbeef.nip.io.test", "IN", "A", "200", "22", "222.173.190.239"],
-            ["DATA", "0", "1", "user-deadbeef.nip.io.test", "IN", "NS", "200", "22", "ns1.nip.io.test"],
-            ["DATA", "0", "1", "user-deadbeef.nip.io.test", "IN", "NS", "200", "22", "ns2.nip.io.test"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "user-deadbeef.nip.io.test",
+                "IN",
+                "A",
+                "200",
+                "22",
+                "222.173.190.239",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "user-deadbeef.nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.nip.io.test",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "user-deadbeef.nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.nip.io.test",
+            ],
         )
 
     def test_backend_responds_to_long_hexstring_with_invalid_response(self):
-        self._send_commands(["Q", "deadbeefcafe.nip.io.test", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "deadbeefcafe.nip.io.test", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -300,7 +394,9 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_short_hexstring_with_invalid_response(self):
-        self._send_commands(["Q", "user-dec0ded.nip.io.test", "IN", "A", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "user-dec0ded.nip.io.test", "IN", "A", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
@@ -379,7 +475,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.300.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_string_in_ip_in_ANY_request_with_invalid_response(self):
+    def test_backend_responds_to_string_in_ip_in_ANY_request_with_invalid_response(
+        self,
+    ):
         self._send_commands(
             ["Q", "subdomain.127.0.STRING.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -430,8 +528,28 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(
             ["DATA", "0", "1", "nip.io.test", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "0", "1", "nip.io.test", "IN", "NS", "200", "22", "ns1.nip.io.test"],
-            ["DATA", "0", "1", "nip.io.test", "IN", "NS", "200", "22", "ns2.nip.io.test"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.nip.io.test",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.nip.io.test",
+            ],
         )
 
     def test_backend_responds_to_self_domain_to_ANY_request(self):
@@ -441,8 +559,28 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(
             ["DATA", "0", "1", "nip.io.test", "IN", "A", "200", "22", "127.0.0.33"],
-            ["DATA", "0", "1", "nip.io.test", "IN", "NS", "200", "22", "ns1.nip.io.test"],
-            ["DATA", "0", "1", "nip.io.test", "IN", "NS", "200", "22", "ns2.nip.io.test"],
+            [
+                "DATA",
+                "0",
+                "1",
+                "nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns1.nip.io.test",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "nip.io.test",
+                "IN",
+                "NS",
+                "200",
+                "22",
+                "ns2.nip.io.test",
+            ],
         )
 
     def test_backend_responds_to_name_servers_A_request_with_valid_ip(self):
@@ -480,7 +618,17 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.127.0.0.1.nip.io.test", "IN", "SOA", "200", "22", "MY_SOA"]
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.0.1.nip.io.test",
+                "IN",
+                "SOA",
+                "200",
+                "22",
+                "MY_SOA",
+            ]
         )
 
     def test_backend_responds_to_SOA_request_for_invalid_ip(self):
@@ -491,16 +639,38 @@ class DynamicBackendTest(unittest.TestCase):
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.127.0.1.nip.io.test", "IN", "SOA", "200", "22", "MY_SOA"]
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.1.nip.io.test",
+                "IN",
+                "SOA",
+                "200",
+                "22",
+                "MY_SOA",
+            ]
         )
 
     def test_backend_responds_to_SOA_request_for_no_ip(self):
-        self._send_commands(["Q", "subdomain.nip.io.test", "IN", "SOA", "1", "127.0.0.1"])
+        self._send_commands(
+            ["Q", "subdomain.nip.io.test", "IN", "SOA", "1", "127.0.0.1"]
+        )
 
         self._run_backend()
 
         self._assert_expected_responses(
-            ["DATA", "0", "1", "subdomain.nip.io.test", "IN", "SOA", "200", "22", "MY_SOA"]
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.nip.io.test",
+                "IN",
+                "SOA",
+                "200",
+                "22",
+                "MY_SOA",
+            ]
         )
 
     def test_backend_responds_to_SOA_request_for_nameserver(self):
@@ -513,7 +683,7 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(
-            self,
+        self,
     ):
         self._send_commands(["Q", "unknown.domain", "IN", "A", "1", "127.0.0.1"])
 
@@ -561,12 +731,16 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.name_servers).is_equal_to(
             {"ns1.nip.io.test": "127.0.0.41", "ns2.nip.io.test": "127.0.0.42"}
         )
-        assert_that(backend.whitelisted_ranges).is_equal_to([
-            ipaddress.IPv4Network('127.0.0.0/8'),
-            ipaddress.IPv4Network('192.168.0.0/16'),
-        ])
+        assert_that(backend.whitelisted_ranges).is_equal_to(
+            [
+                ipaddress.IPv4Network("127.0.0.0/8"),
+                ipaddress.IPv4Network("192.168.0.0/16"),
+            ]
+        )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.100"])
-        assert_that(backend.soa).is_equal_to("ns1.nip.io.test emailaddress@nip.io.test 55 56 57 58 59")
+        assert_that(backend.soa).is_equal_to(
+            "ns1.nip.io.test emailaddress@nip.io.test 55 56 57 58 59"
+        )
 
     def test_configure_with_environment_variables_set(self):
         os.environ["NIPIO_DOMAIN"] = "example.com"
@@ -595,9 +769,11 @@ class DynamicBackendTest(unittest.TestCase):
         assert_that(backend.name_servers).is_equal_to(
             {"ns1.example.com": "127.0.0.31", "ns2.example.com": "127.0.0.32"}
         )
-        assert_that(backend.whitelisted_ranges).is_equal_to([
-            ipaddress.IPv4Network('10.0.0.0/8'),
-        ])
+        assert_that(backend.whitelisted_ranges).is_equal_to(
+            [
+                ipaddress.IPv4Network("10.0.0.0/8"),
+            ]
+        )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
         assert_that(backend.soa).is_equal_to(
             "ns1.example.com hostmaster@example.com 99 40 41 42 43"
@@ -610,9 +786,11 @@ class DynamicBackendTest(unittest.TestCase):
         ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
         backend = self._configure_backend(filename="backend_test_no_lists.conf")
 
-        assert_that(backend.whitelisted_ranges).is_equal_to([
-            ipaddress.IPv4Network('10.0.0.0/8'),
-        ])
+        assert_that(backend.whitelisted_ranges).is_equal_to(
+            [
+                ipaddress.IPv4Network("10.0.0.0/8"),
+            ]
+        )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
 
     def test_configure_with_config_missing_lists(self):
@@ -656,7 +834,10 @@ class DynamicBackendTest(unittest.TestCase):
             calls.extend([call(response_item) for response_item in tab_separated])
 
         calls.extend(
-            [call("END"), call("\n"), ]
+            [
+                call("END"),
+                call("\n"),
+            ]
         )
 
         self.mock_sys.stdout.write.assert_has_calls(calls)
@@ -674,15 +855,18 @@ class DynamicBackendTest(unittest.TestCase):
         backend.ip_address = "127.0.0.33"
         backend.ttl = "200"
         backend.name_servers = collections.OrderedDict(
-            [("ns1.nip.io.test", "127.0.0.34"), ("ns2.nip.io.test", "127.0.0.35"), ]
+            [
+                ("ns1.nip.io.test", "127.0.0.34"),
+                ("ns2.nip.io.test", "127.0.0.35"),
+            ]
         )
         backend.domain = "nip.io.test"
         backend.whitelisted_ranges = [
             # This allows us to test that the blacklist works even when the IPs are
             # part of whitelisted ranges
-            ipaddress.IPv4Network('127.0.0.0/8'),
+            ipaddress.IPv4Network("127.0.0.0/8"),
             # This range covers deadbeef
-            ipaddress.IPv4Network('222.173.190.239/32'),
+            ipaddress.IPv4Network("222.173.190.239/32"),
         ]
         backend.blacklisted_ips = ["127.0.0.2"]
         return backend
