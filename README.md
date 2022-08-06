@@ -38,3 +38,6 @@ An IP address must be in one of the whitelisted ranges for a response to be retu
 `NIPIO_BLACKLIST`: A space-separated list of description=ip blacklisted pairs. Example: `some_description=10.0.0.1 other_description=10.0.0.2`.
 
 This is useful if you're creating your own [Dockerfile](Dockerfile).
+
+
+
