@@ -22,3 +22,10 @@ jobs:
       - name: Test with pytest
         run: |
           pytest --junitxml="result.xml"
+      - name: Test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests
+          path: result.xml
+          reporter: java-junit
