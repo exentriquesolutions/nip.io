@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "nipio"
+version = "0.1.0"
+description = ""
+authors = ["rs <rs@midearth.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+mypy = "^0.971"
+flake8 = "^5.0.4"
+assertpy = "^1.1"
+mock = "^4.0.3"
+types-mock = "^4.0.15"
+pytest = "^7.0"
+isort = "^5.10.1"
+colorama = "^0.4.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

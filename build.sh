@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 #
 # Copyright 2022 Exentrique Solutions Ltd
 #
@@ -16,10 +15,12 @@
 # limitations under the License.
 #
 
-set -ex
+set -e
 
-currentDirectory=$(dirname "$(readlink -f "$0")")
+poetry install
 
-tagName="nipio-local:latest"
-docker build -t "${tagName}" "${currentDirectory}"
-docker run --rm -p 10053:53/udp "${tagName}"
+poetry run black --check --diff --color -q nipio nipio_tests setup.py
+poetry run flake8 nipio nipio_tests setup.py
+poetry run isort --diff --check --color nipio nipio_tests/ setup.py
+poetry run mypy nipio nipio_tests setup.py
+poetry run pytest --junitxml="result.xml"

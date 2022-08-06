@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019–2020 Exentrique Solutions Ltd
+# Copyright 2022 Exentrique Solutions Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,27 +18,57 @@ import configparser
 import os
 import re
 import sys
-from ipaddress import IPv4Address, IPv4Network, AddressValueError
-from typing import Dict, List
+from ipaddress import AddressValueError, IPv4Address, IPv4Network
+from typing import Dict, Iterable, List, Optional, Tuple
 
 
-def _is_debug():
+def _is_debug() -> bool:
     return False
 
 
-def _get_env_splitted(key, default=None, linesep=" ", pairsep="="):
-    return (
-        (line.split(pairsep) for line in os.getenv(key).split(linesep))
-        if os.getenv(key)
-        else default
+def _resolve_configuration(
+    environment_key: str,
+    config: configparser.ConfigParser,
+    config_section: str,
+    config_key: str,
+) -> str:
+    environment_value = os.getenv(environment_key)
+    if environment_value:
+        return environment_value
+    config_value = config.get(config_section, config_key)
+    if config_value:
+        return config_value
+    raise RuntimeError(
+        f"Failed to resolve config for environment_key={environment_key} "
+        f"config section={config_section} key=${config_key}"
     )
 
 
-def _log(msg):
+def _get_env_splitted(
+    key: str,
+    default: Optional[List[Tuple[str, str]]] = None,
+    linesep: str = " ",
+    pairsep: str = "=",
+) -> Iterable[Tuple[str, str]]:
+    environment_value = os.getenv(key)
+    if environment_value:
+        values = environment_value.split(linesep)
+        result: List[Tuple[str, str]] = []
+        for value in values:
+            parts = value.split(pairsep, 2)
+            result.append((parts[0], parts[1]))
+        return result
+    else:
+        if not default:
+            default = []
+        return default
+
+
+def _log(msg: str) -> None:
     sys.stderr.write("backend (%s): %s\n" % (os.getpid(), msg))
 
 
-def _write(*args):
+def _write(*args: str) -> None:
     args_len = len(args)
     c = 0
     for arg in args:
@@ -56,7 +86,7 @@ def _write(*args):
     sys.stdout.flush()
 
 
-def _get_next():
+def _get_next() -> List[str]:
     if _is_debug():
         _log("reading now")
     line = sys.stdin.readline()
@@ -138,12 +168,12 @@ class DynamicBackend:
 
         self.id = os.getenv("NIPIO_SOA_ID", config.get("soa", "id"))
         self.soa = "%s %s %s %s %s %s %s" % (
-            os.getenv("NIPIO_SOA_NS", config.get("soa", "ns")),
-            os.getenv("NIPIO_SOA_HOSTMASTER", config.get("soa", "hostmaster")),
-            os.getenv("NIPIO_SOA_REFRESH", config.get("soa", "refresh")),
-            os.getenv("NIPIO_SOA_RETRY", config.get("soa", "retry")),
-            os.getenv("NIPIO_SOA_EXPIRY", config.get("soa", "expiry")),
-            os.getenv("NIPIO_SOA_MINIMUM_TTL", config.get("soa", "minimum")),
+            _resolve_configuration("NIPIO_SOA_NS", config, "soa", "ns"),
+            _resolve_configuration("NIPIO_SOA_HOSTMASTER", config, "soa", "hostmaster"),
+            _resolve_configuration("NIPIO_SOA_REFRESH", config, "soa", "refresh"),
+            _resolve_configuration("NIPIO_SOA_RETRY", config, "soa", "retry"),
+            _resolve_configuration("NIPIO_SOA_EXPIRY", config, "soa", "expiry"),
+            _resolve_configuration("NIPIO_SOA_MINIMUM_TTL", config, "soa", "minimum"),
             self.id,
         )
         self.domain = os.getenv("NIPIO_DOMAIN", config.get("main", "domain"))
@@ -201,7 +231,7 @@ class DynamicBackend:
 
             if cmd[0] == "CMD":
                 _log(f"received command: {cmd}")
-                self.handle_command(cmd)
+                self.write_end()
                 continue
 
             if cmd[0] == "END":
@@ -228,7 +258,7 @@ class DynamicBackend:
             else:
                 self.handle_unknown(qtype, qname)
 
-    def handle_command(self, cmd) -> None:
+    def write_end(self) -> None:
         _write("END")
 
     def handle_self(self, name: str) -> None:
@@ -341,12 +371,13 @@ class DynamicBackend:
         _write("LOG", f"Invalid IP address: {ip_address}")
         _write("END")
 
-    def _split_subdomain(self, subdomain):
+    def _split_subdomain(self, subdomain: str) -> List[str]:
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
-            s = match.group(1)
+            s: str = match.group(1)
             return [str(int(i, 16)) for i in [s[j : j + 2] for j in (0, 2, 4, 6)]]
-        return re.split("[.-]", subdomain)
+        sub_parts: List[str] = re.split("[.-]", subdomain)
+        return sub_parts
 
 
 if __name__ == "__main__":
