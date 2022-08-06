@@ -18,6 +18,6 @@ setup(
     name="nip.io",
     version="1.0",
     packages=["nipio"],
-    tests_require=["mock", "assertpy"],
+    tests_require=["mock", "assertpy", "types-mock"],
     test_suite="nipio_tests",
 )

@@ -19,6 +19,7 @@ import os
 import re
 import sys
 from ipaddress import IPv4Address, IPv4Network, AddressValueError
+from typing import Dict, List
 
 
 def _is_debug():
@@ -112,9 +113,9 @@ class DynamicBackend:
         self.domain = ""
         self.ip_address = ""
         self.ttl = ""
-        self.name_servers = {}
-        self.whitelisted_ranges = []
-        self.blacklisted_ips = []
+        self.name_servers: Dict[str, str] = {}
+        self.whitelisted_ranges: List[IPv4Network] = []
+        self.blacklisted_ips: List[str] = []
         self.bits = "0"
         self.auth = "1"
 
