@@ -13,3 +13,4 @@ dist
 .cache
 .eggs
 .pytest_cache
+result.xml
