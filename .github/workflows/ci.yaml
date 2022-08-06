@@ -1,4 +1,4 @@
-name: Test
+name: nip.io ci
 
 on: [push, pull_request]
 
@@ -21,4 +21,4 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
-          pytest
+          pytest --junitxml="result.xml"

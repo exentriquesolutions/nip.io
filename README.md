@@ -1,6 +1,6 @@
 # NIP.IO
 
-![Build Status](https://github.com/exentriquesolutions/nip.io/actions/workflows/test.yaml/badge.svg)
+![Build Status](https://github.com/exentriquesolutions/nip.io/actions/workflows/ci.yaml/badge.svg)
 
 Dead simple wildcard DNS for any IP Address.
 
