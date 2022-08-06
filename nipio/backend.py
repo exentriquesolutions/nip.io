@@ -95,7 +95,8 @@ class DynamicBackend:
                        The range should be in CIDR format.
     NIPIO_BLACKLIST -- A space-separated list of description=ip blacklisted pairs.
     NIPIO_AUTH -- Indicates whether this response is authoritative, this is for DNSSEC.
-    NIPIO_BITS -- Scopebits indicates how many bits from the subnet provided in the question.
+    NIPIO_BITS -- Scopebits indicates how many bits from the subnet provided in
+                  the question.
 
     Example:
         backend = DynamicBackend()
