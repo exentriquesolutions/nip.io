@@ -145,7 +145,7 @@ class DynamicBackend:
             _get_env_splitted("NIPIO_NAMESERVERS", config.items("nameservers"))
         )
         self.bits = os.getenv("NIPIO_BITS", config.get("main", "bits"))
-        self.auth = os.getenv("NIPIO_AUTH", config.get("main", "auth"))
+        self.auth = os.getenv("NIPIO_AUTH", config.get("main", 'auth'))
 
         if "NIPIO_WHITELIST" in os.environ or config.has_section("whitelist"):
             for entry in _get_env_splitted(
