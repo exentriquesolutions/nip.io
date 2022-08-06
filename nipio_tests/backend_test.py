@@ -17,7 +17,7 @@ import ipaddress
 import os
 import sys
 import unittest
-from typing import List
+from typing import List, Callable
 
 from assertpy import assert_that
 from mock.mock import patch, call
@@ -35,7 +35,8 @@ class DynamicBackendTest(unittest.TestCase):
         self.mock_sys_patcher = patch("nipio.backend.sys")
         self.mock_sys = self.mock_sys_patcher.start()
 
-        self.mock_sys.stderr.write = sys.stderr.write
+        real_std_error_write: Callable[[str], int] = sys.stderr.write
+        self.mock_sys.stderr.write = real_std_error_write
 
         import nipio
 

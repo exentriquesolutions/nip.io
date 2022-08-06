@@ -19,23 +19,48 @@ import os
 import re
 import sys
 from ipaddress import IPv4Address, IPv4Network, AddressValueError
-from typing import Dict, List, Union, Any, Generator, Tuple
+from typing import Dict, List, Optional, Tuple, Iterable
 
 
 def _is_debug() -> bool:
     return False
 
 
+def _resolve_configuration(
+    environment_key: str,
+    config: configparser.ConfigParser,
+    config_section: str,
+    config_key: str,
+) -> str:
+    environment_value = os.getenv(environment_key)
+    if environment_value:
+        return environment_value
+    config_value = config.get(config_section, config_key)
+    if config_value:
+        return config_value
+    raise RuntimeError(
+        f"Failed to resolve config for environment_key={environment_key} "
+        f"config section={config_section} key=${config_key}"
+    )
+
+
 def _get_env_splitted(
     key: str,
-    default: Union[List[Tuple[str, str]], None] = None,
+    default: Optional[List[Tuple[str, str]]] = None,
     linesep: str = " ",
     pairsep: str = "=",
-) -> Union[Generator[List[str], Any, None], Any]:
+) -> Iterable[Tuple[str, str]]:
     environment_value = os.getenv(key)
     if environment_value:
-        return (line.split(pairsep) for line in environment_value.split(linesep))
+        values = environment_value.split(linesep)
+        result: List[Tuple[str, str]] = []
+        for value in values:
+            parts = value.split(pairsep, 2)
+            result.append((parts[0], parts[1]))
+        return result
     else:
+        if not default:
+            default = []
         return default
 
 
@@ -139,8 +164,8 @@ class DynamicBackend:
 
         self.id = os.getenv("NIPIO_SOA_ID", config.get("soa", "id"))
         self.soa = "%s %s %s" % (
-            os.getenv("NIPIO_SOA_NS", config.get("soa", "ns")),
-            os.getenv("NIPIO_SOA_HOSTMASTER", config.get("soa", "hostmaster")),
+            _resolve_configuration("NIPIO_SOA_NS", config, "soa", "ns"),
+            _resolve_configuration("NIPIO_SOA_HOSTMASTER", config, "soa", "hostmaster"),
             self.id,
         )
         self.domain = os.getenv("NIPIO_DOMAIN", config.get("main", "domain"))
@@ -341,9 +366,10 @@ class DynamicBackend:
     def _split_subdomain(self, subdomain: str) -> List[str]:
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
-            s = match.group(1)
+            s: str = match.group(1)
             return [str(int(i, 16)) for i in [s[j : j + 2] for j in (0, 2, 4, 6)]]
-        return re.split("[.-]", subdomain)
+        sub_parts: List[str] = re.split("[.-]", subdomain)
+        return sub_parts
 
 
 if __name__ == "__main__":
