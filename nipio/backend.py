@@ -19,14 +19,19 @@ import os
 import re
 import sys
 from ipaddress import IPv4Address, IPv4Network, AddressValueError
-from typing import Dict, List
+from typing import Dict, List, Union, Any, Generator, Tuple
 
 
 def _is_debug() -> bool:
     return False
 
 
-def _get_env_splitted(key: str, default=None, linesep=" ", pairsep="="):
+def _get_env_splitted(
+    key: str,
+    default: List[Tuple[str, str]] = None,
+    linesep: str = " ",
+    pairsep: str = "=",
+) -> Union[Generator[List[str], Any, None], Any]:
     environment_value = os.getenv(key)
     if environment_value:
         return (line.split(pairsep) for line in environment_value.split(linesep))
@@ -34,11 +39,11 @@ def _get_env_splitted(key: str, default=None, linesep=" ", pairsep="="):
         return default
 
 
-def _log(msg: str):
+def _log(msg: str) -> None:
     sys.stderr.write("backend (%s): %s\n" % (os.getpid(), msg))
 
 
-def _write(*args: str):
+def _write(*args: str) -> None:
     args_len = len(args)
     c = 0
     for arg in args:
@@ -193,7 +198,7 @@ class DynamicBackend:
 
             if cmd[0] == "CMD":
                 _log(f"received command: {cmd}")
-                self.handle_command(cmd)
+                self.write_end()
                 continue
 
             if cmd[0] == "END":
@@ -220,7 +225,7 @@ class DynamicBackend:
             else:
                 self.handle_unknown(qtype, qname)
 
-    def handle_command(self, cmd) -> None:
+    def write_end(self) -> None:
         _write("END")
 
     def handle_self(self, name: str) -> None:
@@ -333,7 +338,7 @@ class DynamicBackend:
         _write("LOG", f"Invalid IP address: {ip_address}")
         _write("END")
 
-    def _split_subdomain(self, subdomain: str):
+    def _split_subdomain(self, subdomain: str) -> List[str]:
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)
         if match:
             s = match.group(1)

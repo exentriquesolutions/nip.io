@@ -17,6 +17,7 @@ import ipaddress
 import os
 import sys
 import unittest
+from typing import List
 
 from assertpy import assert_that
 from mock.mock import patch, call
@@ -24,12 +25,12 @@ from mock.mock import patch, call
 from nipio.backend import DynamicBackend
 
 
-def _get_test_config_filename(filename):
+def _get_test_config_filename(filename: str) -> str:
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
 
 
 class DynamicBackendTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         os.environ.clear()
         self.mock_sys_patcher = patch("nipio.backend.sys")
         self.mock_sys = self.mock_sys_patcher.start()
@@ -40,12 +41,12 @@ class DynamicBackendTest(unittest.TestCase):
 
         nipio.backend._is_debug = lambda: True
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         sys.stderr.flush()
 
         self.mock_sys_patcher.stop()
 
-    def test_backend_ends_response_to_ANY_request_if_ip_is_blacklisted(self):
+    def test_backend_ends_response_to_ANY_request_if_ip_is_blacklisted(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.0.2.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -54,7 +55,7 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(["LOG", "Blacklisted: 127.0.0.2"])
 
-    def test_backend_ends_response_to_A_request_if_ip_is_blacklisted(self):
+    def test_backend_ends_response_to_A_request_if_ip_is_blacklisted(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.0.2.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -63,7 +64,9 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(["LOG", "Blacklisted: 127.0.0.2"])
 
-    def test_backend_ends_response_to_ANY_request_if_ip_is_not_whitelisted(self):
+    def test_backend_ends_response_to_ANY_request_if_ip_is_not_whitelisted(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.10.0.10.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -72,7 +75,7 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(["LOG", "Not Whitelisted: 10.0.10.1"])
 
-    def test_backend_ends_response_to_A_request_if_ip_is_not_whitelisted(self):
+    def test_backend_ends_response_to_A_request_if_ip_is_not_whitelisted(self) -> None:
         self._send_commands(
             ["Q", "subdomain.10.0.10.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -81,7 +84,9 @@ class DynamicBackendTest(unittest.TestCase):
 
         self._assert_expected_responses(["LOG", "Not Whitelisted: 10.0.10.1"])
 
-    def test_backend_with_empty_whitelist_responds_to_ANY_request_for_valid_ip(self):
+    def test_backend_with_empty_whitelist_responds_to_ANY_request_for_valid_ip(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.10.0.10.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -124,7 +129,9 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_with_empty_whitelist_responds_to_A_request_for_valid_ip(self):
+    def test_backend_with_empty_whitelist_responds_to_A_request_for_valid_ip(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.10.0.10.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -167,7 +174,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_ANY_request_with_valid_ip(self):
+    def test_backend_responds_to_ANY_request_with_valid_ip(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.0.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -210,7 +217,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_A_request_with_valid_ip(self):
+    def test_backend_responds_to_A_request_with_valid_ip(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.0.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -253,7 +260,9 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_ANY_request_with_valid_ip_separated_by_dashes(self):
+    def test_backend_responds_to_ANY_request_with_valid_ip_separated_by_dashes(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain-127-0-0-1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -296,7 +305,9 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_A_request_with_valid_ip_separated_by_dashes(self):
+    def test_backend_responds_to_A_request_with_valid_ip_separated_by_dashes(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain-127-0-0-1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -339,7 +350,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_A_request_with_valid_ip_hexstring(self):
+    def test_backend_responds_to_A_request_with_valid_ip_hexstring(self) -> None:
         self._send_commands(
             ["Q", "user-deadbeef.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -382,7 +393,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_long_hexstring_with_invalid_response(self):
+    def test_backend_responds_to_long_hexstring_with_invalid_response(self) -> None:
         self._send_commands(
             ["Q", "deadbeefcafe.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -393,7 +404,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: deadbeefcafe.nip.io.test"]
         )
 
-    def test_backend_responds_to_short_hexstring_with_invalid_response(self):
+    def test_backend_responds_to_short_hexstring_with_invalid_response(self) -> None:
         self._send_commands(
             ["Q", "user-dec0ded.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -404,7 +415,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: user-dec0ded.nip.io.test"]
         )
 
-    def test_backend_responds_to_invalid_hexstring_with_invalid_response(self):
+    def test_backend_responds_to_invalid_hexstring_with_invalid_response(self) -> None:
         self._send_commands(["Q", "deadcode.nip.io.test", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -413,7 +424,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: deadcode.nip.io.test"]
         )
 
-    def test_backend_responds_to_invalid_ip_in_ANY_request_with_invalid_response(self):
+    def test_backend_responds_to_invalid_ip_in_ANY_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -424,7 +437,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_invalid_ip_in_A_request_with_invalid_response(self):
+    def test_backend_responds_to_invalid_ip_in_A_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -435,7 +450,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_short_ip_in_ANY_request_with_invalid_response(self):
+    def test_backend_responds_to_short_ip_in_ANY_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(["Q", "127.0.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -444,7 +461,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: 127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_short_ip_in_A_request_with_invalid_response(self):
+    def test_backend_responds_to_short_ip_in_A_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(["Q", "127.0.1.nip.io.test", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -453,7 +472,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: 127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_large_ip_in_ANY_request_with_invalid_response(self):
+    def test_backend_responds_to_large_ip_in_ANY_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.300.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -464,7 +485,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.300.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_large_ip_in_A_request_with_invalid_response(self):
+    def test_backend_responds_to_large_ip_in_A_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.300.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -477,7 +500,7 @@ class DynamicBackendTest(unittest.TestCase):
 
     def test_backend_responds_to_string_in_ip_in_ANY_request_with_invalid_response(
         self,
-    ):
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.STRING.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -488,7 +511,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.string.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_string_in_ip_in_A_request_with_invalid_response(self):
+    def test_backend_responds_to_string_in_ip_in_A_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.STRING.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -499,7 +524,9 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.string.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_no_ip_in_ANY_request_with_invalid_response(self):
+    def test_backend_responds_to_no_ip_in_ANY_request_with_invalid_response(
+        self,
+    ) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.1.nip.io.test", "IN", "ANY", "1", "127.0.0.1"]
         )
@@ -510,7 +537,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_no_ip_in_A_request_with_invalid_response(self):
+    def test_backend_responds_to_no_ip_in_A_request_with_invalid_response(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.1.nip.io.test", "IN", "A", "1", "127.0.0.1"]
         )
@@ -521,7 +548,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Invalid IP address: subdomain.127.0.1.nip.io.test"]
         )
 
-    def test_backend_responds_to_self_domain_to_A_request(self):
+    def test_backend_responds_to_self_domain_to_A_request(self) -> None:
         self._send_commands(["Q", "nip.io.test", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -552,7 +579,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_self_domain_to_ANY_request(self):
+    def test_backend_responds_to_self_domain_to_ANY_request(self) -> None:
         self._send_commands(["Q", "nip.io.test", "IN", "ANY", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -583,7 +610,7 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
-    def test_backend_responds_to_name_servers_A_request_with_valid_ip(self):
+    def test_backend_responds_to_name_servers_A_request_with_valid_ip(self) -> None:
         self._send_commands(["Q", "ns1.nip.io.test", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -592,7 +619,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "0", "1", "ns1.nip.io.test", "IN", "A", "200", "22", "127.0.0.34"],
         )
 
-    def test_backend_responds_to_name_servers_ANY_request_with_valid_ip(self):
+    def test_backend_responds_to_name_servers_ANY_request_with_valid_ip(self) -> None:
         self._send_commands(["Q", "ns2.nip.io.test", "IN", "ANY", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -601,7 +628,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "0", "1", "ns2.nip.io.test", "IN", "A", "200", "22", "127.0.0.35"],
         )
 
-    def test_backend_responds_to_SOA_request_for_self(self):
+    def test_backend_responds_to_SOA_request_for_self(self) -> None:
         self._send_commands(["Q", "nip.io.test", "IN", "SOA", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -610,7 +637,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["DATA", "0", "1", "nip.io.test", "IN", "SOA", "200", "22", "MY_SOA"]
         )
 
-    def test_backend_responds_to_SOA_request_for_valid_ip(self):
+    def test_backend_responds_to_SOA_request_for_valid_ip(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.0.1.nip.io.test", "IN", "SOA", "1", "127.0.0.1"]
         )
@@ -631,7 +658,7 @@ class DynamicBackendTest(unittest.TestCase):
             ]
         )
 
-    def test_backend_responds_to_SOA_request_for_invalid_ip(self):
+    def test_backend_responds_to_SOA_request_for_invalid_ip(self) -> None:
         self._send_commands(
             ["Q", "subdomain.127.0.1.nip.io.test", "IN", "SOA", "1", "127.0.0.1"]
         )
@@ -652,7 +679,7 @@ class DynamicBackendTest(unittest.TestCase):
             ]
         )
 
-    def test_backend_responds_to_SOA_request_for_no_ip(self):
+    def test_backend_responds_to_SOA_request_for_no_ip(self) -> None:
         self._send_commands(
             ["Q", "subdomain.nip.io.test", "IN", "SOA", "1", "127.0.0.1"]
         )
@@ -673,7 +700,7 @@ class DynamicBackendTest(unittest.TestCase):
             ]
         )
 
-    def test_backend_responds_to_SOA_request_for_nameserver(self):
+    def test_backend_responds_to_SOA_request_for_nameserver(self) -> None:
         self._send_commands(["Q", "ns1.nip.io.test", "IN", "SOA", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -684,7 +711,7 @@ class DynamicBackendTest(unittest.TestCase):
 
     def test_backend_responds_to_A_request_for_unknown_domain_with_invalid_response(
         self,
-    ):
+    ) -> None:
         self._send_commands(["Q", "unknown.domain", "IN", "A", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -693,7 +720,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Unknown type: A, domain: unknown.domain"]
         )
 
-    def test_backend_responds_to_invalid_request_with_invalid_response(self):
+    def test_backend_responds_to_invalid_request_with_invalid_response(self) -> None:
         self._send_commands(["Q", "nip.io.test", "IN", "INVALID", "1", "127.0.0.1"])
 
         self._run_backend()
@@ -702,7 +729,7 @@ class DynamicBackendTest(unittest.TestCase):
             ["LOG", "Unknown type: INVALID, domain: nip.io.test"]
         )
 
-    def test_backend_responds_to_invalid_command_with_fail(self):
+    def test_backend_responds_to_invalid_command_with_fail(self) -> None:
         self._send_commands(["INVALID", "COMMAND"])
 
         self._run_backend()
@@ -721,7 +748,7 @@ class DynamicBackendTest(unittest.TestCase):
 
         assert_that(self.mock_sys.stdout.flush.call_count).is_equal_to(2)
 
-    def test_configure_with_full_config(self):
+    def test_configure_with_full_config(self) -> None:
         backend = self._configure_backend()
 
         assert_that(backend.id).is_equal_to("55")
@@ -742,7 +769,7 @@ class DynamicBackendTest(unittest.TestCase):
             "ns1.nip.io.test emailaddress@nip.io.test 55"
         )
 
-    def test_configure_with_environment_variables_set(self):
+    def test_configure_with_environment_variables_set(self) -> None:
         os.environ["NIPIO_DOMAIN"] = "example.com"
         os.environ["NIPIO_TTL"] = "1000"
         os.environ["NIPIO_NONWILD_DEFAULT_IP"] = "127.0.0.30"
@@ -775,7 +802,7 @@ class DynamicBackendTest(unittest.TestCase):
             "ns1.example.com hostmaster@example.com 99"
         )
 
-    def test_configure_with_env_lists_config(self):
+    def test_configure_with_env_lists_config(self) -> None:
         os.environ["NIPIO_WHITELIST"] = "whitelist1=10.0.0.0/8"
         os.environ[
             "NIPIO_BLACKLIST"
@@ -789,22 +816,22 @@ class DynamicBackendTest(unittest.TestCase):
         )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
 
-    def test_configure_with_config_missing_lists(self):
+    def test_configure_with_config_missing_lists(self) -> None:
         backend = self._configure_backend(filename="backend_test_no_lists.conf")
 
         assert_that(backend.whitelisted_ranges).is_empty()
         assert_that(backend.blacklisted_ips).is_empty()
 
-    def _run_backend(self):
+    def _run_backend(self) -> None:
         backend = self._create_backend()
         backend.run()
 
-    def _run_backend_without_whitelist(self):
+    def _run_backend_without_whitelist(self) -> None:
         backend = self._create_backend()
         backend.whitelisted_ranges = []
         backend.run()
 
-    def _send_commands(self, *commands):
+    def _send_commands(self, *commands: List[str]) -> None:
         commands_to_send = ["HELO\t5\n"]
 
         for command in commands:
@@ -814,7 +841,7 @@ class DynamicBackendTest(unittest.TestCase):
 
         self.mock_sys.stdin.readline.side_effect = commands_to_send
 
-    def _assert_expected_responses(self, *responses):
+    def _assert_expected_responses(self, *responses: List[str]) -> None:
         calls = [
             call("OK"),
             call("\t"),
@@ -844,7 +871,7 @@ class DynamicBackendTest(unittest.TestCase):
         )
 
     @staticmethod
-    def _create_backend():
+    def _create_backend() -> DynamicBackend:
         backend = DynamicBackend()
         backend.id = "22"
         backend.soa = "MY_SOA"
@@ -868,7 +895,7 @@ class DynamicBackendTest(unittest.TestCase):
         return backend
 
     @staticmethod
-    def _configure_backend(filename="backend_test.conf"):
+    def _configure_backend(filename: str = "backend_test.conf") -> DynamicBackend:
         backend = DynamicBackend()
         backend.configure(_get_test_config_filename(filename))
         return backend
