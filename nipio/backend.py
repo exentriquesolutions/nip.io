@@ -18,8 +18,8 @@ import configparser
 import os
 import re
 import sys
-from ipaddress import IPv4Address, IPv4Network, AddressValueError
-from typing import Dict, List, Optional, Tuple, Iterable
+from ipaddress import AddressValueError, IPv4Address, IPv4Network
+from typing import Dict, Iterable, List, Optional, Tuple
 
 
 def _is_debug() -> bool:

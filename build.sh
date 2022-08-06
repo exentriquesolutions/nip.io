@@ -21,5 +21,6 @@ poetry install
 
 poetry run black --check --diff --color -q nipio nipio_tests setup.py
 poetry run flake8 nipio nipio_tests setup.py
+poetry run isort --diff --check --color nipio nipio_tests/ setup.py
 poetry run mypy nipio nipio_tests setup.py
 poetry run pytest --junitxml="result.xml"

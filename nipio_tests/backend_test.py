@@ -17,10 +17,10 @@ import ipaddress
 import os
 import sys
 import unittest
-from typing import List, Callable
+from typing import Callable, List
 
 from assertpy import assert_that
-from mock.mock import patch, call
+from mock.mock import call, patch
 
 from nipio.backend import DynamicBackend
 
