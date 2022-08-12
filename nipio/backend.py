@@ -170,11 +170,11 @@ class DynamicBackend:
         self.soa = "%s %s %s %s %s %s %s" % (
             _resolve_configuration("NIPIO_SOA_NS", config, "soa", "ns"),
             _resolve_configuration("NIPIO_SOA_HOSTMASTER", config, "soa", "hostmaster"),
+            self.id,
             _resolve_configuration("NIPIO_SOA_REFRESH", config, "soa", "refresh"),
             _resolve_configuration("NIPIO_SOA_RETRY", config, "soa", "retry"),
             _resolve_configuration("NIPIO_SOA_EXPIRY", config, "soa", "expiry"),
             _resolve_configuration("NIPIO_SOA_MINIMUM_TTL", config, "soa", "minimum"),
-            self.id,
         )
         self.domain = os.getenv("NIPIO_DOMAIN", config.get("main", "domain"))
         self.ip_address = os.getenv(
