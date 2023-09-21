@@ -1,4 +1,3 @@
-
 ## Using nip.io under DNS rebinding protection
 
 Some networks block [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding),
