@@ -39,6 +39,14 @@ An IP address must be in one of the whitelisted ranges for a response to be retu
 
 This is useful if you're creating your own [Dockerfile](Dockerfile).
 
+## Troubleshooting
+
+* DNS Rebinding Protection
+
+  Some DNS resolvers, forwarders and routers have DNS rebinding protection which may result in 
+  failure to resolve local and private IP addresses. This service won't work in those situations.
+  However, you may [run a local nip.io instance](DNSREBIND.md) in this case.
+  
 ## Development
 
 If you'd like to develop and hack with nip.io, then the easiest way is to install [Poetry](https://python-poetry.org/)
