@@ -45,7 +45,7 @@ This is useful if you're creating your own [Dockerfile](Dockerfile).
 
   Some DNS resolvers, forwarders and routers have DNS rebinding protection which may result in 
   failure to resolve local and private IP addresses. This service won't work in those situations.
-  However, you may [run a local nip.io instance](DNSREBIND.md) in this case.
+  However, you may [run a local nip.io instance](dns-rebind.md) in this case.
   
 ## Development
 
