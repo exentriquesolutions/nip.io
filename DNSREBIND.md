@@ -1,5 +1,5 @@
-Using nip.io under DNS rebinding protection
---------------------------------------------
+
+## Using nip.io under DNS rebinding protection
 
 Some networks block [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding),
 which means nip.io cannot be used to resolve DNS queries. In this case, you 
@@ -10,34 +10,32 @@ have a few options:
 
 This document details how to run a local nip.io instance.
 
-How do I know if my network blocks DNS rebinding?
--------------------------------------------------
+## How do I know if my network blocks DNS rebinding?
 
 If your system cannot resolve an address like test-192.168.1.1, your network
 provider probably blocks DNS rebinding. Here's an example, note the A record 
 is empty while it should show 192.168.1.1.
 
-      $ dig test-192.168.1.1.nip.io
-      ; <<>> DiG 9.18.12-0ubuntu0.22.04.3-Ubuntu <<>> test-192.168.1.1.nip.io
-      ;; global options: +cmd
-      ;; Got answer:
-      ;; ->>HEADER<<- opcode: QUERY, status: SERVFAIL, id: 4542
-      ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 1
-      
-      ;; OPT PSEUDOSECTION:
-      ; EDNS: version: 0, flags:; udp: 65494
-      ;; QUESTION SECTION:
-      ;test-192.168.1.1.nip.io.       IN      A
-      
-      ;; Query time: 4 msec
-      ;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
-      ;; WHEN: Thu Sep 21 15:26:47 CEST 
+    $ dig test-192.168.1.1.nip.io
+    ; <<>> DiG 9.18.12-0ubuntu0.22.04.3-Ubuntu <<>> test-192.168.1.1.nip.io
+    ;; global options: +cmd
+    ;; Got answer:
+    ;; ->>HEADER<<- opcode: QUERY, status: SERVFAIL, id: 4542
+    ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 1
+    
+    ;; OPT PSEUDOSECTION:
+    ; EDNS: version: 0, flags:; udp: 65494
+    ;; QUESTION SECTION:
+    ;test-192.168.1.1.nip.io.       IN      A
+    
+    ;; Query time: 4 msec
+    ;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+    ;; WHEN: Thu Sep 21 15:26:47 CEST 
 
 
-Running a local nip.io instance
--------------------------------
+## Running a local nip.io instance
 
-Here's how to set up a nip.io instance on your local machine.
+Here is how to set up a nip.io instance on your local machine.
 
 Requirements:
 * Docker Engine
@@ -80,5 +78,3 @@ Requirements:
        $ dig foo-192.168.0.1.nip.io
 
    You should now get the 192.186.0.1 A record
-
-
