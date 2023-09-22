@@ -12,7 +12,7 @@ This document details how to run a local nip.io instance.
 ## How do I know if my network blocks DNS rebinding?
 
 If your system cannot resolve an address like test-192.168.1.1, your network
-provider probably blocks DNS rebinding. Here's an example, note the A record 
+provider probably blocks DNS rebinding. Here is an example, note the A record 
 is empty while it should show 192.168.1.1.
 
     $ dig test-192.168.1.1.nip.io
