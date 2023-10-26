@@ -767,7 +767,7 @@ class DynamicBackendTest(unittest.TestCase):
         )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.100"])
         assert_that(backend.soa).is_equal_to(
-            "ns1.nip.io.test emailaddress@nip.io.test 55"
+            "ns1.nip.io.test emailaddress@nip.io.test 55 56 57 58 59"
         )
 
     def test_configure_with_environment_variables_set(self) -> None:
@@ -777,6 +777,10 @@ class DynamicBackendTest(unittest.TestCase):
         os.environ["NIPIO_SOA_ID"] = "99"
         os.environ["NIPIO_SOA_HOSTMASTER"] = "hostmaster@example.com"
         os.environ["NIPIO_SOA_NS"] = "ns1.example.com"
+        os.environ["NIPIO_SOA_REFRESH"] = "40"
+        os.environ["NIPIO_SOA_RETRY"] = "41"
+        os.environ["NIPIO_SOA_EXPIRY"] = "42"
+        os.environ["NIPIO_SOA_MINIMUM_TTL"] = "43"
         os.environ[
             "NIPIO_NAMESERVERS"
         ] = "ns1.example.com=127.0.0.31 ns2.example.com=127.0.0.32"
@@ -800,7 +804,7 @@ class DynamicBackendTest(unittest.TestCase):
         )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
         assert_that(backend.soa).is_equal_to(
-            "ns1.example.com hostmaster@example.com 99"
+            "ns1.example.com hostmaster@example.com 99 40 41 42 43"
         )
 
     def test_configure_with_env_lists_config(self) -> None:

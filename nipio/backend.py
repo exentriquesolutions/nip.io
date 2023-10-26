@@ -121,6 +121,10 @@ class DynamicBackend:
     NIPIO_SOA_ID -- SOA serial number.
     NIPIO_SOA_HOSTMASTER -- SOA hostmaster email address.
     NIPIO_SOA_NS -- SOA name server.
+    NIPIO_SOA_REFRESH -- SOA refresh.
+    NIPIO_SOA_RETRY -- SOA retry.
+    NIPIO_SOA_EXPIRY -- SOA expiry.
+    NIPIO_SOA_MINIMUM_TTL -- SOA minimum time-to-live (TTL).
     NIPIO_NAMESERVERS -- A space-separated list of domain=ip nameserver pairs.
     NIPIO_WHITELIST -- A space-separated list of description=range pairs to whitelist.
                        The range should be in CIDR format.
@@ -163,10 +167,14 @@ class DynamicBackend:
             config.read_file(fp)
 
         self.id = os.getenv("NIPIO_SOA_ID", config.get("soa", "id"))
-        self.soa = "%s %s %s" % (
+        self.soa = "%s %s %s %s %s %s %s" % (
             _resolve_configuration("NIPIO_SOA_NS", config, "soa", "ns"),
             _resolve_configuration("NIPIO_SOA_HOSTMASTER", config, "soa", "hostmaster"),
             self.id,
+            _resolve_configuration("NIPIO_SOA_REFRESH", config, "soa", "refresh"),
+            _resolve_configuration("NIPIO_SOA_RETRY", config, "soa", "retry"),
+            _resolve_configuration("NIPIO_SOA_EXPIRY", config, "soa", "expiry"),
+            _resolve_configuration("NIPIO_SOA_MINIMUM_TTL", config, "soa", "minimum"),
         )
         self.domain = os.getenv("NIPIO_DOMAIN", config.get("main", "domain"))
         self.ip_address = os.getenv(
