@@ -7,7 +7,7 @@ authors = ["rs <rs@midearth.co.uk>"]
 [tool.poetry.dependencies]
 python = "^3.6.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^22.6.0"
 mypy = "^0.971"
 flake8 = "^5.0.4"
