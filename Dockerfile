@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.22
 
 RUN apk add --no-cache pdns pdns-backend-pipe python3
 
