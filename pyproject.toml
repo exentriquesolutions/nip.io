@@ -10,13 +10,13 @@ python = "^3.9"
 [tool.poetry.group.dev.dependencies]
 black = "^22.6.0"
 mypy = "^0.971"
-flake8 = "^5.0.4"
+flake8 = "^7.2.0"
 assertpy = "^1.1"
 mock = "^4.0.3"
 types-mock = "^4.0.15"
-pytest = "^7.0"
-isort = "^5.10.1"
-colorama = "^0.4.5"
+pytest = "^8.4.0"
+isort = "^6.0.1"
+colorama = "^0.4.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
