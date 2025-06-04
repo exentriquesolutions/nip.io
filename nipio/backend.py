@@ -55,7 +55,7 @@ def _get_env_splitted(
         values = environment_value.split(linesep)
         result: List[Tuple[str, str]] = []
         for value in values:
-            parts = value.split(pairsep, 2)
+            parts = value.split(pairsep, 1)
             result.append((parts[0], parts[1]))
         return result
     else:
@@ -111,6 +111,7 @@ class DynamicBackend:
         name_servers
         whitelisted_ranges
         blacklisted_ips
+        caa
         bits
         auth
 
@@ -129,6 +130,8 @@ class DynamicBackend:
     NIPIO_WHITELIST -- A space-separated list of description=range pairs to whitelist.
                        The range should be in CIDR format.
     NIPIO_BLACKLIST -- A space-separated list of description=ip blacklisted pairs.
+    NIPIO_CAA -- A space-separated list of description=value pairs for CAA `issue`
+                 records returned for whitelisted IPs
     NIPIO_AUTH -- Indicates whether this response is authoritative, this is for DNSSEC.
     NIPIO_BITS -- Scopebits indicates how many bits from the subnet provided in
                   the question.
@@ -150,6 +153,7 @@ class DynamicBackend:
         self.name_servers: Dict[str, str] = {}
         self.whitelisted_ranges: List[IPv4Network] = []
         self.blacklisted_ips: List[str] = []
+        self.caa: List[str] = []
         self.bits = "0"
         self.auth = "1"
 
@@ -202,6 +206,13 @@ class DynamicBackend:
             ):
                 self.blacklisted_ips.append(entry[1])
 
+        if "NIPIO_CAA" in os.environ or config.has_section("caa"):
+            for entry in _get_env_splitted(
+                "NIPIO_CAA",
+                config.items("caa") if config.has_section("caa") else [],
+            ):
+                self.caa.append(entry[1])
+
         _log(f"Name servers: {self.name_servers}")
         _log(f"ID: {self.id}")
         _log(f"TTL: {self.ttl}")
@@ -210,6 +221,7 @@ class DynamicBackend:
         _log(f"Domain: {self.domain}")
         _log(f"Whitelisted IP ranges: {[str(r) for r in self.whitelisted_ranges]}")
         _log(f"Blacklisted IPs: {self.blacklisted_ips}")
+        _log(f"CAA: {self.caa}")
 
     def run(self) -> None:
         """Run the pipe backend.
@@ -246,22 +258,27 @@ class DynamicBackend:
             qname = cmd[1].lower()
             qtype = cmd[3]
 
-            if (qtype == "A" or qtype == "ANY") and qname.endswith(self.domain):
+            if qtype in ("ANY", "A", "CAA") and qname.endswith(self.domain):
                 if qname == self.domain:
-                    self.handle_self(self.domain)
+                    self.handle_self(qtype, self.domain)
                 elif qname in self.name_servers:
-                    self.handle_nameservers(qname)
+                    self.handle_nameservers(qtype, qname)
                 else:
-                    self.handle_subdomains(qname)
+                    self.handle_subdomains(qtype, qname)
             elif qtype == "SOA" and qname.endswith(self.domain):
                 self.handle_soa(qname)
             else:
                 self.handle_unknown(qtype, qname)
 
+            self.write_end()
+
     def write_end(self) -> None:
         _write("END")
 
-    def handle_self(self, name: str) -> None:
+    def handle_self(self, qtype: str, name: str) -> None:
+        if qtype not in ("ANY", "A"):
+            return
+
         _write(
             "DATA",
             self.bits,
@@ -274,9 +291,8 @@ class DynamicBackend:
             self.ip_address,
         )
         self.write_name_servers(name)
-        _write("END")
 
-    def handle_subdomains(self, qname: str) -> None:
+    def handle_subdomains(self, qtype: str, qname: str) -> None:
         subdomain = qname[0 : qname.find(self.domain) - 1]
 
         subparts = self._split_subdomain(subdomain)
@@ -305,7 +321,10 @@ class DynamicBackend:
             self.handle_blacklisted(ip_address)
             return
 
-        self.handle_resolved(ip_address, qname)
+        if qtype in ("ANY", "A"):
+            self.handle_resolved(ip_address, qname)
+        if qtype in ("ANY", "CAA"):
+            self.handle_caa(qname)
 
     def handle_resolved(self, address: IPv4Address, qname: str) -> None:
         _write(
@@ -320,12 +339,29 @@ class DynamicBackend:
             str(address),
         )
         self.write_name_servers(qname)
-        _write("END")
 
-    def handle_nameservers(self, qname: str) -> None:
+    def handle_caa(self, qname: str) -> None:
+        for value in self.caa:
+            _write(
+                "DATA",
+                self.bits,
+                self.auth,
+                qname,
+                "IN",
+                "CAA",
+                self.ttl,
+                self.id,
+                "0",
+                "issue",
+                '"%s"' % value,
+            )
+
+    def handle_nameservers(self, qtype: str, qname: str) -> None:
+        if qtype not in ("ANY", "A"):
+            return
+
         ip = self.name_servers[qname]
         _write("DATA", self.bits, self.auth, qname, "IN", "A", self.ttl, self.id, ip)
-        _write("END")
 
     def write_name_servers(self, qname: str) -> None:
         for name_server in self.name_servers:
@@ -353,23 +389,18 @@ class DynamicBackend:
             self.id,
             self.soa,
         )
-        _write("END")
 
     def handle_unknown(self, qtype: str, qname: str) -> None:
         _write("LOG", f"Unknown type: {qtype}, domain: {qname}")
-        _write("END")
 
     def handle_not_whitelisted(self, ip_address: IPv4Address) -> None:
         _write("LOG", f"Not Whitelisted: {ip_address}")
-        _write("END")
 
     def handle_blacklisted(self, ip_address: IPv4Address) -> None:
         _write("LOG", f"Blacklisted: {ip_address}")
-        _write("END")
 
     def handle_invalid_ip(self, ip_address: str) -> None:
         _write("LOG", f"Invalid IP address: {ip_address}")
-        _write("END")
 
     def _split_subdomain(self, subdomain: str) -> List[str]:
         match = re.search("(?:^|.*[.-])([0-9A-Fa-f]{8})$", subdomain)

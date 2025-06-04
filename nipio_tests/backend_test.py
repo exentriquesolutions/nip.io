@@ -128,6 +128,19 @@ class DynamicBackendTest(unittest.TestCase):
                 "22",
                 "ns2.nip.io.test",
             ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.10.0.10.1.nip.io.test",
+                "IN",
+                "CAA",
+                "200",
+                "22",
+                "0",
+                "issue",
+                '"letsencrypt.org;validationmethods=http-01"',
+            ],
         )
 
     def test_backend_with_empty_whitelist_responds_to_A_request_for_valid_ip(
@@ -216,6 +229,19 @@ class DynamicBackendTest(unittest.TestCase):
                 "22",
                 "ns2.nip.io.test",
             ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.0.1.nip.io.test",
+                "IN",
+                "CAA",
+                "200",
+                "22",
+                "0",
+                "issue",
+                '"letsencrypt.org;validationmethods=http-01"',
+            ],
         )
 
     def test_backend_responds_to_A_request_with_valid_ip(self) -> None:
@@ -261,6 +287,29 @@ class DynamicBackendTest(unittest.TestCase):
             ],
         )
 
+    def test_backend_responds_to_CAA_request(self) -> None:
+        self._send_commands(
+            ["Q", "subdomain.127.0.0.1.nip.io.test", "IN", "CAA", "1", "127.0.0.1"]
+        )
+
+        self._run_backend()
+
+        self._assert_expected_responses(
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain.127.0.0.1.nip.io.test",
+                "IN",
+                "CAA",
+                "200",
+                "22",
+                "0",
+                "issue",
+                '"letsencrypt.org;validationmethods=http-01"',
+            ],
+        )
+
     def test_backend_responds_to_ANY_request_with_valid_ip_separated_by_dashes(
         self,
     ) -> None:
@@ -303,6 +352,19 @@ class DynamicBackendTest(unittest.TestCase):
                 "200",
                 "22",
                 "ns2.nip.io.test",
+            ],
+            [
+                "DATA",
+                "0",
+                "1",
+                "subdomain-127-0-0-1.nip.io.test",
+                "IN",
+                "CAA",
+                "200",
+                "22",
+                "0",
+                "issue",
+                '"letsencrypt.org;validationmethods=http-01"',
             ],
         )
 
@@ -812,6 +874,9 @@ class DynamicBackendTest(unittest.TestCase):
         os.environ[
             "NIPIO_BLACKLIST"
         ] = "black_listed=10.0.0.111 black_listed2=10.0.0.112"
+        os.environ[
+            "NIPIO_CAA"
+        ] = "letsencrypt=letsencrypt.org;validationmethods=http-01"
         backend = self._configure_backend(filename="backend_test_no_lists.conf")
 
         assert_that(backend.whitelisted_ranges).is_equal_to(
@@ -820,6 +885,9 @@ class DynamicBackendTest(unittest.TestCase):
             ]
         )
         assert_that(backend.blacklisted_ips).is_equal_to(["10.0.0.111", "10.0.0.112"])
+        assert_that(backend.caa).is_equal_to(
+            ["letsencrypt.org;validationmethods=http-01"]
+        )
 
     def test_configure_with_config_missing_lists(self) -> None:
         backend = self._configure_backend(filename="backend_test_no_lists.conf")
@@ -897,6 +965,7 @@ class DynamicBackendTest(unittest.TestCase):
             ipaddress.IPv4Network("222.173.190.239/32"),
         ]
         backend.blacklisted_ips = ["127.0.0.2"]
+        backend.caa = ["letsencrypt.org;validationmethods=http-01"]
         return backend
 
     @staticmethod
